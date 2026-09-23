@@ -103,11 +103,17 @@ class VideoUpscaleService : LifecycleService() {
                 capMaxHeight = job.capMaxHeight,
                 inferenceDispatcher = inferenceDispatcher,
                 progress = { frame, total, eta ->
+                    // The UI's progress bar reads this on every frame - it's a
+                    // cheap DB write and shouldn't be throttled, or the screen
+                    // looks stuck at 0% until NOTIF_EVERY_N_FRAMES frames have
+                    // finished (which, at CPU tile-inference speeds, can be a
+                    // long wait). Only the system notification (comparatively
+                    // expensive to rebuild) is throttled.
+                    val percent = if (total > 0) frame * 100 / total else 0
+                    jobsRepository.updateProgress(jobId, percent.coerceIn(0, 99))
                     if (frame - lastFrame >= NOTIF_EVERY_N_FRAMES || frame >= total) {
                         lastFrame = frame
                         updateNotification(jobId, frame, total, eta)
-                        val percent = if (total > 0) frame * 100 / total else 0
-                        jobsRepository.updateProgress(jobId, percent.coerceIn(0, 99))
                     }
                 },
                 cancel = flag,

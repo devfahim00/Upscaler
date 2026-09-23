@@ -37,9 +37,10 @@ jobs:
       - name: Report build errors
         if: steps.build.outcome == 'failure'
         run: |
-          LN=$(grep -n "ninja: Entering directory\|^e: \|FAILURE: Build\|FAILED$" build.log | head -1 | cut -d: -f1)
+          LN=$(grep -n ": error:\|ninja: Entering directory\|^e: " build.log | head -1 | cut -d: -f1)
+          if [ -z "$LN" ]; then LN=$(grep -n "FAILED$" build.log | head -1 | cut -d: -f1); fi
           if [ -z "$LN" ]; then LN=1; fi
-          tail -n +"$LN" build.log | grep -v "^Failed to \|^Task :" > errors.txt
+          tail -n +"$LN" build.log | grep -v "^Failed to " > errors.txt
           i=0
           while IFS= read -r line; do
             i=$((i+1))

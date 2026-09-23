@@ -56,7 +56,7 @@ class PlanUpscaleUseCaseTest {
 
     @Test
     fun `plan reduces scale when output too large`() {
-        val p = useCase(3000, 2000, requestedScale = 4, nativeModelScale = 4, backendUsesGpu = true)
+        val p = useCase(2000, 1500, requestedScale = 4, nativeModelScale = 4, backendUsesGpu = true)
         assertEquals(2, p.effectiveScale)
         assertNotNull(p.scaleReducedNotice)
     }

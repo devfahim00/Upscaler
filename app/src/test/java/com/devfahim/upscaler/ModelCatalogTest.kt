@@ -13,10 +13,20 @@ import org.junit.Test
 class ModelCatalogTest {
 
     @Test
-    fun `all models expose positive native scales`() {
-        ModelType.entries.forEach { m ->
+    fun `photo models expose 2x or 4x native scales`() {
+        ModelType.photoModels.forEach { m ->
             assertTrue("${m.name} has invalid scale", m.nativeScale in 2..4)
         }
+    }
+
+    @Test
+    fun `hdr net is an internal pass, not a selectable upscale model`() {
+        // HDRNet runs at identity resolution on a 1/12 downscaled copy.
+        assertEquals(1, ModelType.HDR_NET.nativeScale)
+        assertFalse(ModelType.photoModels.contains(ModelType.HDR_NET))
+        assertEquals("hdrnet", ModelType.HDR_NET.assetDir)
+        assertFalse(ModelType.HDR_NET.supportsWdnInterpolation)
+        assertNull(ModelType.HDR_NET.standInFor)
     }
 
     @Test

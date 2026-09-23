@@ -70,7 +70,9 @@ class ModelAssetManager @Inject constructor(
         /**
          * Bump when shipping new/updated weight files. Also used by
          * [WdnInterpolator] to key its interpolated-weight cache.
+         *
+         * v3 adds the hdrnet (Zero-DCE++) enhancement model.
          */
-        const val VERSION = 2
+        const val VERSION = 3
     }
 }

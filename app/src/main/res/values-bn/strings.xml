@@ -51,6 +51,8 @@
     <string name="model_anime_x4_name">অ্যানিমে / ইলাস্ট্রেশন x4</string>
     <string name="model_anime_x4_desc">ধারালো রেখা ও ফ্ল্যাট রঙ। ড্রয়িং ও লোগোর জন্য দুর্দান্ত।</string>
     <string name="model_standin_note">(সবচেয়ে কাছের উপলব্ধ কমপ্যাক্ট ওয়েট - বদলানো যায়)</string>
+    <string name="model_hdrnet_name">HDRNet (HDR পাস)</string>
+    <string name="model_hdrnet_desc">Zero-DCE++ এনহ্যান্সমেন্ট কার্ভ, ঐচ্ছিক HDR পাস হিসেবে চালানো হয়।</string>
     <string name="format_png">PNG</string>
     <string name="format_jpeg">JPEG</string>
     <string name="format_webp">WEBP</string>
@@ -58,6 +60,10 @@
     <!-- WDN interpolation -->
     <string name="options_wdn_title">ডিনয়েজ শক্তি: %1$d%%</string>
     <string name="options_wdn_hint">ছবির মডেলটিকে তার ডিনয়েজ-প্রশিক্ষিত WDN জোড়ার সাথে মেশানো হয়। ০% সবচেয়ে বেশি টেক্সচার রাখে; বেশি মান বেশি নয়েজ দূর করে কিন্তু ছবি মসৃণ দেখায়।</string>
+
+    <!-- HDR enhancement (per model) -->
+    <string name="options_hdr_title">HDR</string>
+    <string name="options_hdr_hint">আপস্কেলের আগে HDRNet মডেল (Zero-DCE++ কার্ভ) চালানো হয়: শ্যাডো তোলে, হাইলাইট রিকভার করে ও HDR-ধাঁচের পাঞ্চ যোগ করে। প্রতিটি মডেলের জন্য আলাদাভাবে মনে রাখা হয়।</string>
 
     <!-- Processing -->
     <string name="processing_photo_title">ছবি আপস্কেল হচ্ছে</string>

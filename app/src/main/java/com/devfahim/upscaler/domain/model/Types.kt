@@ -56,6 +56,11 @@ data class UpscaleJob(
      * Ignored by models without [ModelType.supportsWdnInterpolation].
      */
     val wdnAlpha: Float = 0f,
+    /**
+     * Whether the HDRNet (Zero-DCE++) HDR enhancement pass ran/should run
+     * before upscaling. Chosen per model in the photo options sheet.
+     */
+    val hdrEnabled: Boolean = false,
     /** Original content Uri (as string). */
     val inputUri: String,
     /** App-private result file (filesDir/results/<id>.<ext>). */

@@ -134,7 +134,7 @@ object WdnBlend {
                 params[key] = t.substring(eq + 1)
             }
             when (tokens[0]) {
-                "Convolution" -> {
+                "Convolution", "ConvolutionDepthWise" -> {
                     val weightSize = params[6]?.toIntOrNull() ?: error("Convolution without 6=weight_data_size: $line")
                     specs += BlobSpec.TaggedWeight(weightSize)
                     if (params[5]?.toIntOrNull() == 1) {
@@ -145,6 +145,7 @@ object WdnBlend {
                     specs += BlobSpec.RawFloat32(params[0]?.toIntOrNull() ?: error("PReLU without 0=num_slope: $line"))
                 }
                 // every other layer type bundled here loads no weights
+                // (ReLU, TanH, Concat, BinaryOp, Interp, ...)
             }
         }
         return specs

@@ -21,6 +21,12 @@ RRDBNet as an optional High Quality mode — running on
   *Denoise strength* slider blends the two networks' weights at runtime —
   0% keeps the most texture, higher values remove more noise but look
   smoother. Blended weights are cached per strength step.
+- **HDR pass (HDRNet)**: every upscale model gets an **HDR** toggle in the
+  photo options sheet (remembered per model). When on, the bundled
+  **HDRNet** network (Zero-DCE++ enhancement curves, converted to ncnn)
+  runs on a 1/12 downscaled copy of the photo and its per-pixel curve is
+  applied at full resolution — lifting shadows, recovering highlights and
+  adding an HDR-style punch before the upscale itself.
 - **High Quality mode**: full RealESRGAN_x4plus (RRDBNet, 23 blocks) recovers
   real texture and fine detail the compact models smooth away. It runs with
   smaller tiles (64 CPU / 96 GPU) so it stays memory-safe even on low-RAM
@@ -100,6 +106,23 @@ re-encodes them. `WdnInterpolator` caches the blended file per strength step
 (10% increments) under `filesDir/wdn-interp-v<N>/`. This mirrors the official
 Real-ESRGAN advice of trading off between the two models.
 
+## How the HDR pass works
+
+The per-model **HDR** toggle runs the bundled `hdrnet` model — the official
+**Zero-DCE++** (Zero-Reference Deep Curve Estimation, curve version)
+checkpoint converted to an ncnn graph of depthwise/pointwise convolutions.
+Exactly like the upstream pipeline, the tiny network runs on a 1/12
+bilinear-downscaled copy of the photo and predicts a per-pixel curve
+parameter `r ∈ [−1, 1]` (encoded as `(r + 1) / 2` so it survives the
+standard [0,1] ARGB bridge). `HdrCurve` (pure Kotlin, unit-tested against
+numpy-verified vectors) then bilinearly upsamples the curve map to the
+photo resolution (align-corners, matching `UpsamplingBilinear2d`) and
+applies the 8-iteration curve `x ← x + r·(x² − x)` per channel. `r > 0`
+darkens midtones, `r < 0` brightens them — the network was trained to pick
+the direction and strength that produce a well-exposed, HDR-style result.
+Because the network sees a 1/12 view, the pass adds only a small fraction
+of the upscale's runtime and memory even on large photos.
+
 ## How backend selection works
 
 `SelectBackendUseCase` (pure Kotlin, unit-tested):
@@ -142,6 +165,7 @@ To add or swap a model:
 | Photo x2 (fast) | `realesr-animevideov3-x2` | animevideov3 x2 | **stand-in** (no public general-x2 compact weight); flagged in UI |
 | Anime / Illustration x4 | `realesr-animevideov3-x4` | animevideov3 x4 | — |
 | (WDN companion) | `realesr-general-wdn-x4v3` | official compact WDN twin | not user-selectable; reached via the denoise slider |
+| (HDRNet pass) | `hdrnet` | official Zero-DCE++ Epoch-99 curve network | not user-selectable; reached via the per-model HDR toggle |
 
 ## Project layout
 

@@ -244,4 +244,21 @@ class WdnBlendTest {
         assertEquals(101, realSpecs.size)
         assertEquals(1213296, realSpecs.sumOf { it.count })
     }
+
+    /**
+     * HDRNet (Zero-DCE++): 7 CSDN blocks = 14 conv layers x (weight + bias)
+     * = 28 blobs, 10,561 values total. Runs only when the asset is
+     * reachable; also proves the depthwise-conv branch of the parser.
+     */
+    @Test
+    fun `real hdrnet param parses into the expected blob layout`() {
+        val paramFile = File("src/main/assets/models/hdrnet/model.param")
+        assumeTrue(paramFile.isFile)
+        val specs = WdnBlend.parseBlobSpecs(paramFile.readText())
+        assertEquals(28, specs.size)
+        assertEquals(10561, specs.sumOf { it.count })
+        // the 14 weight blobs are exactly the tagged (fp16) ones
+        assertEquals(14, specs.count { it is WdnBlend.BlobSpec.TaggedWeight })
+        assertEquals(14, specs.count { it is WdnBlend.BlobSpec.RawFloat32 })
+    }
 }

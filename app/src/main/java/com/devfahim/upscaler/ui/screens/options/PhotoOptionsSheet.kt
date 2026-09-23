@@ -14,13 +14,16 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -31,8 +34,8 @@ import com.devfahim.upscaler.domain.model.ScaleOption
 
 /**
  * Bottom sheet shown right after picking photos (the "fast path"):
- * model, scale, WDN denoise strength (photo x4 model), output format +
- * JPEG/WEBP quality.
+ * model, scale, HDR enhancement (per model), WDN denoise strength (photo x4
+ * model), output format + JPEG/WEBP quality.
  */
 @Composable
 fun PhotoOptionsSheet(
@@ -40,13 +43,22 @@ fun PhotoOptionsSheet(
     defaultModel: ModelType,
     defaultScale: ScaleOption,
     defaultFormat: OutputFormat,
-    onProcess: (ModelType, ScaleOption, OutputFormat, Float) -> Unit,
+    initialHdrModels: Set<ModelType>,
+    onHdrToggle: (ModelType, Boolean) -> Unit,
+    onProcess: (ModelType, ScaleOption, OutputFormat, Float, Boolean) -> Unit,
 ) {
     var model by remember { mutableStateOf(defaultModel) }
     var scale by remember { mutableStateOf(defaultScale) }
     var format by remember { mutableStateOf(defaultFormat) }
     var quality by remember { mutableFloatStateOf(92f) }
     var wdnAlpha by remember { mutableFloatStateOf(0f) }
+    // The HDR preference is per upscale model; kept locally so switching
+    // models shows (and processes with) that model's own saved choice.
+    val hdrOn = remember {
+        mutableStateMapOf<ModelType, Boolean>().apply {
+            initialHdrModels.forEach { put(it, true) }
+        }
+    }
 
     Column(
         Modifier
@@ -97,6 +109,32 @@ fun PhotoOptionsSheet(
             }
         }
 
+        // ---- HDR enhancement (remembered per model) ----
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(
+                    stringResource(R.string.options_hdr_title),
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Text(
+                    stringResource(R.string.options_hdr_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Switch(
+                checked = hdrOn[model] == true,
+                onCheckedChange = { on ->
+                    hdrOn[model] = on
+                    onHdrToggle(model, on)
+                },
+            )
+        }
+
         // ---- WDN interpolation (photo x4 only) ----
         if (model.supportsWdnInterpolation) {
             SectionLabel(stringResource(R.string.options_wdn_title, (wdnAlpha * 100).toInt()))
@@ -137,7 +175,7 @@ fun PhotoOptionsSheet(
 
         Spacer(Modifier.height(4.dp))
         Button(
-            onClick = { onProcess(model, scale, format, wdnAlpha) },
+            onClick = { onProcess(model, scale, format, wdnAlpha, hdrOn[model] == true) },
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text(stringResource(R.string.action_process))

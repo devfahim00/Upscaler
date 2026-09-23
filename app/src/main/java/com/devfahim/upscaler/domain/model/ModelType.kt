@@ -5,10 +5,10 @@ import com.devfahim.upscaler.R
 import com.devfahim.upscaler.domain.tiling.MemoryGuard
 
 /**
- * The bundled super-resolution models.
+ * The bundled neural models.
  *
  * Files live in `app/src/main/assets/models/<assetDir>/model.{param,bin}`.
- * Two families are shipped:
+ * Three families are shipped:
  *
  *  * SRVGGNetCompact exports (the compact architecture used by Real-ESRGAN's
  *    "general" / "animevideov3" fast models) - these run smoothly on any
@@ -17,6 +17,8 @@ import com.devfahim.upscaler.domain.tiling.MemoryGuard
  *    noticeably more real texture than the compact models (which can look
  *    over-smooth), at the cost of much longer processing. It runs with
  *    smaller tiles so it stays inside the memory budget on low-RAM devices.
+ *  * HDRNet - the Zero-DCE++ enhancement-curve network, run as an optional
+ *    per-model "HDR" pass before upscaling (see [HDR_NET]).
  *
  * `standInFor` documents where a listed use-case does not have a
  * purpose-trained public weight yet and the closest available compact model
@@ -89,6 +91,24 @@ enum class ModelType(
         nativeScale = 4,
         displayNameRes = R.string.model_anime_x4_name,
         descriptionRes = R.string.model_anime_x4_desc,
+    ),
+
+    /**
+     * HDRNet - the optional HDR enhancement pass (Zero-DCE++ curve
+     * network, converted to ncnn). Not an upscaler and not
+     * user-selectable in the model picker: it is reached through the
+     * per-model "HDR" toggle in the photo options sheet, which runs this
+     * network on a 1/12 downscaled copy of the photo and then applies the
+     * 8-iteration enhancement curve at full resolution (see HdrCurve).
+     *
+     * nativeScale = 1 (identity resolution); the tile sizes are unused
+     * because the network runs untiled on the small copy.
+     */
+    HDR_NET(
+        assetDir = "hdrnet",
+        nativeScale = 1,
+        displayNameRes = R.string.model_hdrnet_name,
+        descriptionRes = R.string.model_hdrnet_desc,
     );
 
     /** Tile body edge for this model on the given backend. */

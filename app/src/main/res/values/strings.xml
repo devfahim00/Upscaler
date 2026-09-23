@@ -51,6 +51,8 @@
     <string name="model_anime_x4_name">Anime / Illustration x4</string>
     <string name="model_anime_x4_desc">Sharper lines and flat colors. Great for drawings and logos.</string>
     <string name="model_standin_note">(closest available compact weight - swappable)</string>
+    <string name="model_hdrnet_name">HDRNet (HDR pass)</string>
+    <string name="model_hdrnet_desc">Zero-DCE++ enhancement curves, run as the optional HDR pass.</string>
     <string name="format_png">PNG</string>
     <string name="format_jpeg">JPEG</string>
     <string name="format_webp">WEBP</string>
@@ -58,6 +60,10 @@
     <!-- WDN interpolation -->
     <string name="options_wdn_title">Denoise strength: %1$d%%</string>
     <string name="options_wdn_hint">Blends the photo model with its denoise-trained WDN twin. 0% keeps the most texture; higher values remove more noise but look smoother.</string>
+
+    <!-- HDR enhancement (per model) -->
+    <string name="options_hdr_title">HDR</string>
+    <string name="options_hdr_hint">Runs the HDRNet model (Zero-DCE++ curves) before upscaling: lifts shadows, recovers highlights and adds an HDR-style punch. Remembered per model.</string>
 
     <!-- Processing -->
     <string name="processing_photo_title">Upscaling photo</string>

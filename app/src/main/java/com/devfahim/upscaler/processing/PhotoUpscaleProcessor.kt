@@ -27,11 +27,14 @@ import javax.inject.Singleton
  * Photo upscaling pipeline:
  *
  *   decode (EXIF-corrected) -> [optional input downscale when the requested
- *   scale is below the model's native scale] -> tile plan -> per-tile ncnn
- *   inference -> body copy into the output buffer -> encode PNG/JPEG/WEBP
- *   -> thumbnail for the Library grid.
+ *   scale is below the model's native scale] -> [optional HDRNet pass] ->
+ *   tile plan -> per-tile ncnn inference -> body copy into the output
+ *   buffer -> encode PNG/JPEG/WEBP -> thumbnail for the Library grid.
  *
- * The tile loop lives in [upscaleArgb].
+ * The tile loop lives in [upscaleArgb]. The optional HDR pass (per-model
+ * "HDR" toggle, [UpscaleJob.hdrEnabled]) conditions the capped input with
+ * the Zero-DCE++ curve network before upscaling and covers progress 0-15,
+ * the upscale itself 15-99.
  */
 @Singleton
 class PhotoUpscaleProcessor @Inject constructor(
@@ -41,6 +44,7 @@ class PhotoUpscaleProcessor @Inject constructor(
     private val planUpscale: PlanUpscaleUseCase,
     private val backendResolver: BackendResolver,
     private val settingsRepository: SettingsRepository,
+    private val hdrNet: HdrNetProcessor,
 ) {
 
     /** What the processor hands back to the caller. */
@@ -94,8 +98,24 @@ class PhotoUpscaleProcessor @Inject constructor(
             if (work != source) source.recycle()
         }
 
+        // Optional HDRNet pass (per-model "HDR" toggle): conditions the
+        // input before upscaling. Covers progress 0..15.
+        val progressBase: Int
+        val progressSpan: Int
+        if (job.hdrEnabled) {
+            work = hdrNet.enhance(work, decision, inferenceDispatcher) { pct ->
+                onProgress((pct * 15 / 100).coerceIn(0, 15))
+            }
+            progressBase = 15
+            progressSpan = 84
+        } else {
+            progressBase = 0
+            progressSpan = 100
+        }
+
         val outBitmap = upscaleBitmap(
-            work, job.model, decision, inferenceDispatcher, onProgress,
+            work, job.model, decision, inferenceDispatcher,
+            onProgress = { pct -> onProgress(progressBase + pct * progressSpan / 100) },
             wdnAlpha = if (job.model.supportsWdnInterpolation) job.wdnAlpha else 0f,
         )
 

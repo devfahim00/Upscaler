@@ -35,6 +35,7 @@ class JobController @Inject constructor(
         scale: ScaleOption,
         format: OutputFormat,
         wdnAlpha: Float = 0f,
+        hdrEnabled: Boolean = false,
     ): String {
         val job = UpscaleJob(
             id = UUID.randomUUID().toString(),
@@ -43,6 +44,7 @@ class JobController @Inject constructor(
             requestedScale = scale.factor,
             format = format,
             wdnAlpha = if (model.supportsWdnInterpolation) wdnAlpha.coerceIn(0f, 1f) else 0f,
+            hdrEnabled = hdrEnabled,
             inputUri = inputUri,
             inputBytes = inputBytes,
             title = title,

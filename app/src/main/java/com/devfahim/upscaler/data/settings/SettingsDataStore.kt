@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.devfahim.upscaler.domain.model.BackendPreference
 import com.devfahim.upscaler.domain.model.ModelType
@@ -42,6 +43,7 @@ class SettingsDataStore @Inject constructor(
         val GPU_BENCH_MS = doublePreferencesKey("gpu_benchmark_ms")
         val CPU_BENCH_MS = doublePreferencesKey("cpu_benchmark_ms")
         val BENCH_MODEL = stringPreferencesKey("benchmark_model_key")
+        val HDR_MODELS = stringSetPreferencesKey("hdr_enabled_models")
     }
 
     override val settings: Flow<AppSettings> = context.dataStore.data.map { p ->
@@ -67,6 +69,9 @@ class SettingsDataStore @Inject constructor(
             gpuBenchmarkMs = p[Keys.GPU_BENCH_MS],
             cpuBenchmarkMs = p[Keys.CPU_BENCH_MS],
             benchmarkModelKey = p[Keys.BENCH_MODEL],
+            hdrEnabledModels = p[Keys.HDR_MODELS].orEmpty()
+                .mapNotNull { name -> runCatching { ModelType.valueOf(name) }.getOrNull() }
+                .toSet(),
         )
     }
 
@@ -109,6 +114,17 @@ class SettingsDataStore @Inject constructor(
             if (gpuMs != null) it[Keys.GPU_BENCH_MS] = gpuMs
             if (cpuMs != null) it[Keys.CPU_BENCH_MS] = cpuMs
             it[Keys.BENCH_MODEL] = modelKey
+        }
+    }
+
+    override suspend fun setHdrEnabled(model: ModelType, enabled: Boolean) {
+        context.dataStore.edit { p ->
+            val current = p[Keys.HDR_MODELS].orEmpty()
+            p[Keys.HDR_MODELS] = if (enabled) {
+                (current + model.name).toSet()
+            } else {
+                (current - model.name).toSet()
+            }
         }
     }
 

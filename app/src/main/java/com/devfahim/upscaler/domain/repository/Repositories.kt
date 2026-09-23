@@ -42,6 +42,8 @@ data class AppSettings(
     val gpuBenchmarkMs: Double?,
     val cpuBenchmarkMs: Double?,
     val benchmarkModelKey: String?,
+    /** Upscale models with the optional HDRNet pass enabled. */
+    val hdrEnabledModels: Set<ModelType> = emptySet(),
 )
 
 interface SettingsRepository {
@@ -56,6 +58,8 @@ interface SettingsRepository {
     suspend fun setThemeMode(mode: ThemeMode)
     suspend fun setLanguageTag(tag: String)
     suspend fun storeBenchmark(gpuMs: Double?, cpuMs: Double?, modelKey: String)
+    /** Enables/disables the HDRNet pass for one upscale model (persisted per model). */
+    suspend fun setHdrEnabled(model: ModelType, enabled: Boolean)
 }
 
 /** Results of probing the device's inference capabilities. */

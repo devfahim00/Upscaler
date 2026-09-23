@@ -77,6 +77,24 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
+## Zero-DCE++ (HDRNet model weights)
+
+* Project: https://github.com/Li-Chongyi/Zero-DCE_extension
+* Weights: `Zero-DCE++/snapshots_Zero_DCE++/Epoch99.pth` (Zero-DCE++
+  enhancement-curve network), converted to ncnn `.param`/`.bin` as the
+  bundled `hdrnet` model
+* License: the upstream repository states "The code is made available for
+  academic research purpose only. Under Attribution-NonCommercial 4.0
+  International License." (CC BY-NC 4.0 —
+  https://creativecommons.org/licenses/by-nc/4.0/). Redistribution or
+  commercial use of this app's build therefore requires replacing these
+  weights or obtaining separate permission from the authors.
+* Use: the optional per-model "HDR" enhancement pass (predicts the
+  enhancement-curve parameter; the 8-iteration curve itself is applied by
+  the app's own Kotlin code).
+* Attribution: Guo, Li, Ling - "Zero-Reference Deep Curve Estimation for
+  Low-Light Image Enhancement" (CVPR 2020) and its journal extension.
+
 ## AndroidX / Jetpack libraries (Apache-2.0)
 
 Compose, Room, DataStore, WorkManager, Navigation, Hilt (Apache-2.0),

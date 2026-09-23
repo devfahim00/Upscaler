@@ -70,7 +70,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val jobController: JobController,
-    settingsRepository: SettingsRepository,
+    private val settingsRepository: SettingsRepository,
     jobsRepository: JobsRepository,
 ) : ViewModel() {
 
@@ -80,6 +80,11 @@ class HomeViewModel @Inject constructor(
     val settings: StateFlow<AppSettings?> = settingsRepository.settings
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
+    /** Persists the per-model HDR preference when the user toggles it. */
+    fun setHdrEnabled(model: ModelType, enabled: Boolean) {
+        viewModelScope.launch { settingsRepository.setHdrEnabled(model, enabled) }
+    }
+
     /** Enqueues one job per selected image (batch queue). */
     fun startPhotoJobs(
         uris: List<Uri>,
@@ -87,6 +92,7 @@ class HomeViewModel @Inject constructor(
         scale: ScaleOption,
         format: OutputFormat,
         wdnAlpha: Float,
+        hdrEnabled: Boolean,
         onFirstEnqueued: (String) -> Unit,
     ) {
         viewModelScope.launch {
@@ -100,6 +106,7 @@ class HomeViewModel @Inject constructor(
                     scale = scale,
                     format = format,
                     wdnAlpha = wdnAlpha,
+                    hdrEnabled = hdrEnabled,
                 )
                 if (firstId == null) firstId = id
             }
@@ -204,11 +211,16 @@ fun HomeScreen(
                 defaultModel = settings?.defaultPhotoModel ?: ModelType.GENERAL_PHOTO_X4,
                 defaultScale = settings?.defaultScale ?: ScaleOption.X4,
                 defaultFormat = settings?.outputFormat ?: OutputFormat.PNG,
-                onProcess = { model, scale, format, wdnAlpha ->
+                initialHdrModels = settings?.hdrEnabledModels ?: emptySet(),
+                onHdrToggle = viewModel::setHdrEnabled,
+                onProcess = { model, scale, format, wdnAlpha, hdr ->
                     optionsOpen = false
                     val uris = pickedPhotos
                     pickedPhotos = emptyList()
-                    viewModel.startPhotoJobs(uris, model, scale, format, wdnAlpha, onFirstEnqueued = onOpenJob)
+                    viewModel.startPhotoJobs(
+                        uris, model, scale, format, wdnAlpha, hdr,
+                        onFirstEnqueued = onOpenJob,
+                    )
                 },
             )
         }

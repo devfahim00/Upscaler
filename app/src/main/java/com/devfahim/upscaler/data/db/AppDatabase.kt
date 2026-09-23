@@ -9,6 +9,8 @@ import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.RoomDatabase
 import androidx.room.Update
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.flow.Flow
 
 @Entity(tableName = "jobs")
@@ -20,6 +22,8 @@ data class JobEntity(
     val format: String,         // OutputFormat.name
     /** WDN interpolation strength in [0,1]; 0 for non-interpolated models. */
     val wdnAlpha: Float,
+    /** Whether the HDRNet (Zero-DCE++) pass ran before upscaling. */
+    val hdrEnabled: Boolean,
     val inputUri: String,
     val resultPath: String?,
     val savedUri: String?,
@@ -74,10 +78,21 @@ interface JobDao {
 
 /**
  * v2 (photo-only): dropped the video-only columns (kind / capMaxHeight /
- * sourceDurationMs) and added wdnAlpha. The app uses destructive migration,
- * so upgrading from v1 resets the job history.
+ * sourceDurationMs) and added wdnAlpha. v3 added hdrEnabled (with a
+ * non-destructive ALTER TABLE migration, so job history survives).
  */
-@Database(entities = [JobEntity::class], version = 2, exportSchema = false)
+@Database(entities = [JobEntity::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun jobDao(): JobDao
+
+    companion object {
+        /** v2 -> v3: add the HDR pass flag without resetting job history. */
+        val MIGRATION_2_3: Migration = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE jobs ADD COLUMN hdrEnabled INTEGER NOT NULL DEFAULT 0"
+                )
+            }
+        }
+    }
 }

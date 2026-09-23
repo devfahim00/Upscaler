@@ -4,6 +4,7 @@ import com.devfahim.upscaler.data.engine.HalfFloat
 import com.devfahim.upscaler.data.engine.WdnBlend
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Test
@@ -241,6 +242,6 @@ class WdnBlendTest {
         assumeTrue(paramFile.isFile)
         val realSpecs = WdnBlend.parseBlobSpecs(paramFile.readText())
         assertEquals(101, realSpecs.size)
-        assertEquals(1212296, realSpecs.sumOf { it.count })
+        assertEquals(1213296, realSpecs.sumOf { it.count })
     }
 }

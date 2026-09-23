@@ -56,6 +56,21 @@
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 
+        <!--
+            WorkManager's own SystemForegroundService (used by
+            PhotoUpscaleWorker.setForeground) doesn't declare a
+            foregroundServiceType in its library manifest. On Android 14+
+            the type passed to ForegroundInfo/startForeground() must be a
+            subset of what's declared here, or the OS throws
+            IllegalArgumentException("... is not a subset of
+            foregroundServiceType attribute 0x00000000 ..."). Override it
+            to match the dataSync type used by PhotoUpscaleWorker.
+        -->
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync"
+            tools:node="merge" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

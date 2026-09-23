@@ -16,8 +16,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # The vendored prebuilt ships one folder per ABI; ANDROID_ABI is set by AGP.
+# cpp -> main -> src -> app -> <repo root>/ncnn-android
 get_filename_component(NCNN_ANDROID_DIR
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../../ncnn-android" ABSOLUTE)
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../../../ncnn-android" ABSOLUTE)
 
 if(NOT EXISTS "${NCNN_ANDROID_DIR}/${ANDROID_ABI}/lib/cmake/ncnn/ncnnConfig.cmake")
     message(FATAL_ERROR "ncnn prebuilt not found for ABI ${ANDROID_ABI}: "

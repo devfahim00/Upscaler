@@ -57,11 +57,12 @@ object HdrAdjustOps {
     fun apply(argb: IntArray, width: Int, height: Int, a: HdrAdjust) {
         if (a.advancedNeutral) return
 
-        // pow(2f, v) == 2^v (kotlin.math has no exp2 in this Kotlin version).
-        val expGain = if (a.exposure != 0f) pow(2f, a.exposure) else 1f
+        // 2f.pow(v) == 2^v (kotlin.math.pow is extension-only here; there
+        // is no exp2()/top-level pow() in this Kotlin version).
+        val expGain = if (a.exposure != 0f) 2f.pow(a.exposure) else 1f
         val bright = a.brightness * BRIGHTNESS_RANGE
-        val contrastF = if (a.contrast != 0f) pow(2f, a.contrast) else 1f
-        val gammaV = if (a.gamma != 0f) pow(2f, -1.2f * a.gamma) else 1f
+        val contrastF = if (a.contrast != 0f) 2f.pow(a.contrast) else 1f
+        val gammaV = if (a.gamma != 0f) 2f.pow(-1.2f * a.gamma) else 1f
         val tempR = 1f + a.temperature * TEMP_RANGE
         val tempB = 1f - a.temperature * TEMP_RANGE
         val tintRB = 1f + a.tint * TINT_RANGE

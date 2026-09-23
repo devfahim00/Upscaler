@@ -194,8 +194,22 @@ class VideoUpscaleEngine @Inject constructor(
         // case pre-shrinks frames instead of post-downscaling (bounded memory).
         val runScale = requestedScale.coerceAtMost(model.nativeScale)
         val preShrink = runScale.toFloat() / model.nativeScale
-        val feedW = if (preShrink < 1f) (codedW * preShrink).roundToInt().coerceAtLeast(8) else codedW
-        val feedH = if (preShrink < 1f) (codedH * preShrink).roundToInt().coerceAtLeast(8) else codedH
+        var feedW = if (preShrink < 1f) (codedW * preShrink).roundToInt().coerceAtLeast(8) else codedW
+        var feedH = if (preShrink < 1f) (codedH * preShrink).roundToInt().coerceAtLeast(8) else codedH
+
+        // Independently, the native-scale pass itself must stay memory-safe:
+        // upscaleFrame() allocates its output buffer at feedW*nativeScale x
+        // feedH*nativeScale in full, before capMaxHeight or anything else
+        // downscales it. A large frame (e.g. 4K) through a x4 model can
+        // demand a 500MB+ single allocation and OOM - sometimes hard enough
+        // to skip the catch block in VideoUpscaleService, which leaves the
+        // job stuck at 0% forever instead of failing visibly. Shrink feedW/H
+        // here so encW/encH (computed below) stays consistent with what
+        // upscaleFrame will actually produce.
+        val (safeFeedW, safeFeedH) = com.devfahim.upscaler.domain.tiling.MemoryGuard
+            .capInputForNativeScale(feedW, feedH, model.nativeScale)
+        feedW = safeFeedW
+        feedH = safeFeedH
 
         // Display-space height after scaling (rotation-aware).
         val displayHAfter = (if (rotation == 90 || rotation == 270) feedW else feedH) * model.nativeScale

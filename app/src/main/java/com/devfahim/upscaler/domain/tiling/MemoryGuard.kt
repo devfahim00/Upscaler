@@ -60,6 +60,33 @@ object MemoryGuard {
     fun tileSizeFor(backendUsesGpu: Boolean): Int =
         if (backendUsesGpu) GPU_TILE_SIZE else CPU_TILE_SIZE
 
+    /**
+     * Shrinks (width, height) so the model's *native*-scale pass over it
+     * stays within [maxOutputPixels].
+     *
+     * The native-scale output buffer (input dims x nativeScale, in both
+     * directions) is always allocated in full before any later downscale to
+     * the requested resolution - it's the single biggest allocation in the
+     * pipeline, and the one [effectiveScale] alone doesn't bound, since that
+     * only caps the *final* output. Large photos or video frames run
+     * through a x4 model can demand a 500MB+ buffer here and OOM. Callers
+     * should resample their source to the returned size before upscaling.
+     */
+    fun capInputForNativeScale(
+        width: Int,
+        height: Int,
+        nativeScale: Int,
+        maxOutputPixels: Int = MAX_OUTPUT_PIXELS,
+    ): Pair<Int, Int> {
+        require(width > 0 && height > 0 && nativeScale > 0)
+        val nativePixels = width.toLong() * height.toLong() * nativeScale.toLong() * nativeScale.toLong()
+        if (nativePixels <= maxOutputPixels) return width to height
+        val factor = kotlin.math.sqrt(maxOutputPixels.toDouble() / nativePixels.toDouble())
+        val w = (width * factor).toInt().coerceAtLeast(8)
+        val h = (height * factor).toInt().coerceAtLeast(8)
+        return w to h
+    }
+
     /** Rough estimate of peak extra memory (bytes) for tile processing. */
     fun estimateTileWorkingBytes(tileSize: Int, scale: Int): Long {
         val inPx = tileSize.toLong() + 2L * TILE_OVERLAP

@@ -37,12 +37,19 @@ jobs:
       - name: Report build errors
         if: steps.build.outcome == 'failure'
         run: |
-          grep -nE "error:|error: |e: file|FAILURE:|FAILED$|What went wrong|Execution failed|Caused by|> Task" build.log | tail -60 > errors.txt || true
-          if [ ! -s errors.txt ]; then
-            tail -80 build.log > errors.txt
+          LN=$(grep -n "FAILURE: Build failed" build.log | head -1 | cut -d: -f1)
+          if [ -z "$LN" ]; then
+            LN=$(grep -n "^e: " build.log | head -1 | cut -d: -f1)
           fi
+          if [ -z "$LN" ]; then
+            LN=1
+          fi
+          tail -n +"$LN" build.log | head -120 > errors.txt
+          i=0
           while IFS= read -r line; do
-            esc=$(printf '%s' "$line" | sed 's/%/%25/g' | tr '\n' ' ')
+            i=$((i+1))
+            if [ $i -gt 40 ]; then break; fi
+            esc=$(printf '%s' "$line" | sed 's/%/%25/g')
             echo "::error::${esc}"
           done < errors.txt
           exit 1

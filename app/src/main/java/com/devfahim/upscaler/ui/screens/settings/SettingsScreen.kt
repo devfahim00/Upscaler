@@ -170,7 +170,7 @@ fun SettingsScreen(
 
             Text(stringResource(R.string.settings_default_scale), style = MaterialTheme.typography.bodyLarge)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                ScaleOption.entries.forEach { sc ->
+                ScaleOption.upscaleDefaults.forEach { sc ->
                     FilterChip(
                         selected = s.defaultScale == sc,
                         onClick = { viewModel.setDefaultScale(sc) },

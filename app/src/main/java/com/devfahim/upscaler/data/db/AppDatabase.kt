@@ -1,5 +1,6 @@
 package com.devfahim.upscaler.data.db
 
+import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
@@ -23,7 +24,11 @@ data class JobEntity(
     /** WDN interpolation strength in [0,1]; 0 for non-interpolated models. */
     val wdnAlpha: Float,
     /** Whether the HDRNet (Zero-DCE++) pass ran before upscaling. */
+    @ColumnInfo(defaultValue = "0")
     val hdrEnabled: Boolean,
+    /** HdrAdjust CSV (strength,exposure,...,sharpness); "" = defaults. */
+    @ColumnInfo(defaultValue = "")
+    val hdrAdjust: String,
     val inputUri: String,
     val resultPath: String?,
     val savedUri: String?,
@@ -78,10 +83,18 @@ interface JobDao {
 
 /**
  * v2 (photo-only): dropped the video-only columns (kind / capMaxHeight /
- * sourceDurationMs) and added wdnAlpha. v3 added hdrEnabled (with a
- * non-destructive ALTER TABLE migration, so job history survives).
+ * sourceDurationMs) and added wdnAlpha. v3 added hdrEnabled, v4 added
+ * hdrAdjust (both with non-destructive ALTER TABLE migrations, so job
+ * history survives).
+ *
+ * NOTE: the @ColumnInfo(defaultValue = ...) annotations are required for
+ * Room's post-migration schema validation - the ALTER TABLE statements
+ * create the columns WITH defaults, and an entity that does not declare
+ * the same default fails validation with "Migration didn't properly
+ * handle <column>" (hdrEnabled was missing this before v4; fresh installs
+ * never validated it, but v2/v3 -> v4 upgrades would).
  */
-@Database(entities = [JobEntity::class], version = 3, exportSchema = false)
+@Database(entities = [JobEntity::class], version = 4, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun jobDao(): JobDao
 
@@ -91,6 +104,15 @@ abstract class AppDatabase : RoomDatabase() {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL(
                     "ALTER TABLE jobs ADD COLUMN hdrEnabled INTEGER NOT NULL DEFAULT 0"
+                )
+            }
+        }
+
+        /** v3 -> v4: add the HDR tuning CSV without resetting job history. */
+        val MIGRATION_3_4: Migration = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE jobs ADD COLUMN hdrAdjust TEXT NOT NULL DEFAULT ''"
                 )
             }
         }

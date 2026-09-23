@@ -17,6 +17,7 @@
     <string name="action_skip">এড়িয়ে যান</string>
     <string name="action_get_started">শুরু করুন</string>
     <string name="action_process">এখনই আপস্কেল করুন</string>
+    <string name="action_enhance">এখনই এনহ্যান্স করুন</string>
     <string name="action_save">গ্যালারিতে সংরক্ষণ</string>
     <string name="action_share">শেয়ার</string>
 
@@ -63,7 +64,28 @@
 
     <!-- HDR enhancement (per model) -->
     <string name="options_hdr_title">HDR</string>
-    <string name="options_hdr_hint">আপস্কেলের আগে HDRNet মডেল (Zero-DCE++ কার্ভ) চালানো হয়: শ্যাডো তোলে, হাইলাইট রিকভার করে ও HDR-ধাঁচের পাঞ্চ যোগ করে। প্রতিটি মডেলের জন্য আলাদাভাবে মনে রাখা হয়।</string>
+    <string name="options_hdr_hint">আপস্কেলের আগে HDRNet মডেল (Zero-DCE++ কার্ভ) চালানো হয়: শ্যাডো তোলে, হাইলাইট ধ্বংস থেকে বাঁচায় ও HDR-ধাঁচের গভীরতা যোগ করে - ডিফল্টেই ছবি ন্যাচারাল থাকে। প্রতিটি মডেলের জন্য আলাদাভাবে মনে রাখা হয়।</string>
+    <string name="options_hdr_strength">HDR শক্তি: %1$d%%</string>
+    <string name="options_hdr_strength_hint">কম = বেশি ন্যাচারাল, বেশি = জোরালো HDR ইফেক্ট। যেকোনো মানেই ব্রাইটনেস স্বয়ংক্রিয়ভাবে নিয়ন্ত্রণে থাকে।</string>
+
+    <!-- HDR-only mode (1x scale chip) -->
+    <string name="scale_hdr_only">শুধু HDR</string>
+    <string name="options_hdr_only_hint">শুধুমাত্র HDR এনহ্যান্সমেন্ট হবে - কোনো আপস্কেল নেই।</string>
+    <string name="options_hdr_only_model_note">শুধু HDR মোডে মডেল নির্বাচন ব্যবহার হয় না।</string>
+
+    <!-- HDR advanced adjustments -->
+    <string name="options_hdr_advanced">অ্যাডভান্সড অ্যাডজাস্টমেন্ট</string>
+    <string name="options_hdr_advanced_hint">অভিজ্ঞ ব্যবহারকারীদের জন্য - HDR লুক নিজের মতো সাজান। সব স্লাইডার শুরুতেই নিউট্রাল থাকে।</string>
+    <string name="options_hdr_reset">ডিফল্টে রিসেট</string>
+    <string name="adjust_exposure">এক্সপোজার</string>
+    <string name="adjust_brightness">ব্রাইটনেস</string>
+    <string name="adjust_contrast">কনট্রাস্ট</string>
+    <string name="adjust_gamma">গামা</string>
+    <string name="adjust_saturation">স্যাচুরেশন</string>
+    <string name="adjust_temperature">টেম্পারেচার</string>
+    <string name="adjust_tint">টিন্ট</string>
+    <string name="adjust_highlights">হাইলাইট সুরক্ষা</string>
+    <string name="adjust_sharpness">শার্পনেস</string>
 
     <!-- Processing -->
     <string name="processing_photo_title">ছবি আপস্কেল হচ্ছে</string>

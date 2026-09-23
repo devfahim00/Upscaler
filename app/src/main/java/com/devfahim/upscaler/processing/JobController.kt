@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.devfahim.upscaler.domain.model.HdrAdjust
 import com.devfahim.upscaler.domain.model.JobStatus
 import com.devfahim.upscaler.domain.model.ModelType
 import com.devfahim.upscaler.domain.model.OutputFormat
@@ -36,6 +37,7 @@ class JobController @Inject constructor(
         format: OutputFormat,
         wdnAlpha: Float = 0f,
         hdrEnabled: Boolean = false,
+        hdrAdjust: HdrAdjust = HdrAdjust(),
     ): String {
         val job = UpscaleJob(
             id = UUID.randomUUID().toString(),
@@ -44,7 +46,8 @@ class JobController @Inject constructor(
             requestedScale = scale.factor,
             format = format,
             wdnAlpha = if (model.supportsWdnInterpolation) wdnAlpha.coerceIn(0f, 1f) else 0f,
-            hdrEnabled = hdrEnabled,
+            hdrEnabled = hdrEnabled || scale == ScaleOption.X1,
+            hdrAdjust = hdrAdjust.clamped(),
             inputUri = inputUri,
             inputBytes = inputBytes,
             title = title,

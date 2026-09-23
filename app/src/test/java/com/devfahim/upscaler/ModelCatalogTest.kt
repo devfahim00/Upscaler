@@ -87,7 +87,15 @@ class ModelCatalogTest {
     }
 
     @Test
-    fun `scale options cover 2 and 4`() {
-        assertEquals(listOf(2, 4), ScaleOption.entries.map { it.factor })
+    fun `scale options cover hdr-only 1 plus 2 and 4`() {
+        assertEquals(listOf(1, 2, 4), ScaleOption.entries.map { it.factor })
+    }
+
+    @Test
+    fun `hdr-only is not offered as a default scale`() {
+        // The Settings default-scale picker only offers real upscaling;
+        // X1 is a per-run choice in the options sheet.
+        assertEquals(listOf(ScaleOption.X2, ScaleOption.X4), ScaleOption.upscaleDefaults)
+        assertFalse(ScaleOption.upscaleDefaults.contains(ScaleOption.X1))
     }
 }

@@ -17,6 +17,7 @@
     <string name="action_skip">Skip</string>
     <string name="action_get_started">Get started</string>
     <string name="action_process">Upscale now</string>
+    <string name="action_enhance">Enhance now</string>
     <string name="action_save">Save to Gallery</string>
     <string name="action_share">Share</string>
 
@@ -63,7 +64,28 @@
 
     <!-- HDR enhancement (per model) -->
     <string name="options_hdr_title">HDR</string>
-    <string name="options_hdr_hint">Runs the HDRNet model (Zero-DCE++ curves) before upscaling: lifts shadows, recovers highlights and adds an HDR-style punch. Remembered per model.</string>
+    <string name="options_hdr_hint">Runs the HDRNet model (Zero-DCE++ curves) before upscaling: lifts shadows, protects highlights and adds HDR-style depth - tuned to stay natural by default. Remembered per model.</string>
+    <string name="options_hdr_strength">HDR strength: %1$d%%</string>
+    <string name="options_hdr_strength_hint">Lower = more natural, higher = a stronger HDR punch. Brightness is kept in check automatically either way.</string>
+
+    <!-- HDR-only mode (1x scale chip) -->
+    <string name="scale_hdr_only">HDR only</string>
+    <string name="options_hdr_only_hint">Applies just the HDR enhancement - no upscaling.</string>
+    <string name="options_hdr_only_model_note">Model selection is ignored in HDR-only mode.</string>
+
+    <!-- HDR advanced adjustments -->
+    <string name="options_hdr_advanced">Advanced adjustments</string>
+    <string name="options_hdr_advanced_hint">For advanced users - fine-tune the HDR look. All sliders start neutral.</string>
+    <string name="options_hdr_reset">Reset to defaults</string>
+    <string name="adjust_exposure">Exposure</string>
+    <string name="adjust_brightness">Brightness</string>
+    <string name="adjust_contrast">Contrast</string>
+    <string name="adjust_gamma">Gamma</string>
+    <string name="adjust_saturation">Saturation</string>
+    <string name="adjust_temperature">Temperature</string>
+    <string name="adjust_tint">Tint</string>
+    <string name="adjust_highlights">Highlight protection</string>
+    <string name="adjust_sharpness">Sharpness</string>
 
     <!-- Processing -->
     <string name="processing_photo_title">Upscaling photo</string>

@@ -31,10 +31,14 @@ import javax.inject.Singleton
  *   tile plan -> per-tile ncnn inference -> body copy into the output
  *   buffer -> encode PNG/JPEG/WEBP -> thumbnail for the Library grid.
  *
+ * HDR-only mode (requestedScale == 1, the "HDR only" scale chip) skips the
+ * model entirely: decode -> cap -> HDRNet pass -> encode, so users can
+ * apply the HDR enhancement without upscaling.
+ *
  * The tile loop lives in [upscaleArgb]. The optional HDR pass (per-model
- * "HDR" toggle, [UpscaleJob.hdrEnabled]) conditions the capped input with
- * the Zero-DCE++ curve network before upscaling and covers progress 0-15,
- * the upscale itself 15-99.
+ * "HDR" toggle, [UpscaleJob.hdrEnabled], tuned by [UpscaleJob.hdrAdjust])
+ * conditions the capped input with the Zero-DCE++ curve network before
+ * upscaling and covers progress 0-15, the upscale itself 15-99.
  */
 @Singleton
 class PhotoUpscaleProcessor @Inject constructor(
@@ -74,37 +78,60 @@ class PhotoUpscaleProcessor @Inject constructor(
         val requested = job.requestedScale
         val native = job.model.nativeScale
 
-        // Requested < native (e.g. 2x with a x4 model): shrink the input so
-        // the model's native output equals the requested output. Keeps the
-        // output buffer inside the memory budget and runs faster than a
-        // native pass + downscale.
-        //
-        // Independently, the native-scale pass itself must stay within the
-        // memory budget regardless of the requested/native relationship -
-        // a large photo run through a x4 model can demand a 500MB+
-        // intermediate buffer and OOM before we ever get to downscale to
-        // the requested resolution. Take whichever bound is smaller.
+        // HDR-only mode (ScaleOption.X1): just the enhancement pass, no
+        // model upscale. The input is still capped to the shared
+        // output-pixel budget so the full-resolution curve pass stays
+        // inside the memory envelope.
+        val hdrOnly = requested <= 1
+
         var work = source
-        val (safeW, safeH) = MemoryGuard.capInputForNativeScale(source.width, source.height, native)
-        var targetW = safeW
-        var targetH = safeH
-        if (requested < native) {
-            val factor = requested.toFloat() / native.toFloat()
-            targetW = minOf(targetW, (source.width * factor).toInt().coerceAtLeast(8))
-            targetH = minOf(targetH, (source.height * factor).toInt().coerceAtLeast(8))
-        }
-        if (targetW != source.width || targetH != source.height) {
-            work = Bitmap.createScaledBitmap(source, targetW, targetH, true)
-            if (work != source) source.recycle()
+        if (hdrOnly) {
+            val (capW, capH) =
+                MemoryGuard.capInputForNativeScale(source.width, source.height, 1)
+            if (capW != source.width || capH != source.height) {
+                work = Bitmap.createScaledBitmap(source, capW, capH, true)
+                if (work != source) source.recycle()
+            }
+        } else {
+            // Requested < native (e.g. 2x with a x4 model): shrink the input so
+            // the model's native output equals the requested output. Keeps the
+            // output buffer inside the memory budget and runs faster than a
+            // native pass + downscale.
+            //
+            // Independently, the native-scale pass itself must stay within the
+            // memory budget regardless of the requested/native relationship -
+            // a large photo run through a x4 model can demand a 500MB+
+            // intermediate buffer and OOM before we ever get to downscale to
+            // the requested resolution. Take whichever bound is smaller.
+            val (safeW, safeH) = MemoryGuard.capInputForNativeScale(source.width, source.height, native)
+            var targetW = safeW
+            var targetH = safeH
+            if (requested < native) {
+                val factor = requested.toFloat() / native.toFloat()
+                targetW = minOf(targetW, (source.width * factor).toInt().coerceAtLeast(8))
+                targetH = minOf(targetH, (source.height * factor).toInt().coerceAtLeast(8))
+            }
+            if (targetW != source.width || targetH != source.height) {
+                work = Bitmap.createScaledBitmap(source, targetW, targetH, true)
+                if (work != source) source.recycle()
+            }
         }
 
-        // Optional HDRNet pass (per-model "HDR" toggle): conditions the
-        // input before upscaling. Covers progress 0..15.
+        // Optional HDRNet pass (per-model "HDR" toggle, always on in
+        // HDR-only mode): conditions the input before upscaling. Covers
+        // progress 0..15 (or 0..100 in HDR-only mode).
+        val runHdr = job.hdrEnabled || hdrOnly
         val progressBase: Int
         val progressSpan: Int
-        if (job.hdrEnabled) {
-            work = hdrNet.enhance(work, decision, inferenceDispatcher) { pct ->
-                onProgress((pct * 15 / 100).coerceIn(0, 15))
+        if (runHdr) {
+            work = hdrNet.enhance(
+                work, decision, inferenceDispatcher, job.hdrAdjust,
+            ) { pct ->
+                if (hdrOnly) {
+                    onProgress(pct)
+                } else {
+                    onProgress((pct * 15 / 100).coerceIn(0, 15))
+                }
             }
             progressBase = 15
             progressSpan = 84
@@ -113,26 +140,42 @@ class PhotoUpscaleProcessor @Inject constructor(
             progressSpan = 100
         }
 
-        val outBitmap = upscaleBitmap(
-            work, job.model, decision, inferenceDispatcher,
-            onProgress = { pct -> onProgress(progressBase + pct * progressSpan / 100) },
-            wdnAlpha = if (job.model.supportsWdnInterpolation) job.wdnAlpha else 0f,
-        )
+        val final: Bitmap
+        val outW: Int
+        val outH: Int
+        val scaleReduced: Boolean
+        if (hdrOnly) {
+            // No upscale: the enhanced bitmap is the result, at its own size.
+            final = work
+            outW = work.width
+            outH = work.height
+            scaleReduced = false
+        } else {
+            val outBitmap = upscaleBitmap(
+                work, job.model, decision, inferenceDispatcher,
+                onProgress = { pct -> onProgress(progressBase + pct * progressSpan / 100) },
+                wdnAlpha = if (job.model.supportsWdnInterpolation) job.wdnAlpha else 0f,
+            )
 
-        val plan = planUpscale(
-            width = work.width,
-            height = work.height,
-            requestedScale = requested,
-            nativeModelScale = native,
-            backendUsesGpu = decision.backend == BackendMode.GPU,
-        )
-        work.recycle()
+            val plan = planUpscale(
+                width = work.width,
+                height = work.height,
+                requestedScale = requested,
+                nativeModelScale = native,
+                backendUsesGpu = decision.backend == BackendMode.GPU,
+            )
+            work.recycle()
 
-        var final = outBitmap
-        if (final.width != plan.outputWidth || final.height != plan.outputHeight) {
-            val scaled = Bitmap.createScaledBitmap(final, plan.outputWidth, plan.outputHeight, true)
-            final.recycle()
-            final = scaled
+            var f = outBitmap
+            if (f.width != plan.outputWidth || f.height != plan.outputHeight) {
+                val scaled = Bitmap.createScaledBitmap(f, plan.outputWidth, plan.outputHeight, true)
+                f.recycle()
+                f = scaled
+            }
+            final = f
+            outW = plan.outputWidth
+            outH = plan.outputHeight
+            scaleReduced = plan.scaleReducedNotice != null
         }
 
         val resultFile = storage.resultFile(job.id, job.format)
@@ -152,12 +195,12 @@ class PhotoUpscaleProcessor @Inject constructor(
         Result.success(
             PhotoResult(
                 file = resultFile,
-                width = plan.outputWidth,
-                height = plan.outputHeight,
+                width = outW,
+                height = outH,
                 bytes = resultFile.length(),
                 durationMs = System.currentTimeMillis() - started,
                 backend = decision.backend,
-                scaleReduced = plan.scaleReducedNotice != null,
+                scaleReduced = scaleReduced,
             )
         )
     } catch (ce: CancellationException) {

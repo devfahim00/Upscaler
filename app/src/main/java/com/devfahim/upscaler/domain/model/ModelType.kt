@@ -130,8 +130,15 @@ enum class ModelType(
     }
 }
 
-/** User-selectable output scale. */
+/** User-selectable output scale. X1 = HDR-only mode (no upscaling). */
 enum class ScaleOption(val factor: Int) {
+    /** HDR-only: run just the HDRNet enhancement pass, no model upscaling. */
+    X1(1),
     X2(2),
     X4(4);
+
+    companion object {
+        /** Scales offered as a *default* in Settings (HDR-only is a per-run choice). */
+        val upscaleDefaults: List<ScaleOption> = listOf(X2, X4)
+    }
 }

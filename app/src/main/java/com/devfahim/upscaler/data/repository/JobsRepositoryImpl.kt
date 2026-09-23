@@ -1,6 +1,7 @@
 package com.devfahim.upscaler.data.repository
 
 import com.devfahim.upscaler.data.db.JobEntity
+import com.devfahim.upscaler.domain.model.HdrAdjust
 import com.devfahim.upscaler.domain.model.JobStatus
 import com.devfahim.upscaler.domain.model.ModelType
 import com.devfahim.upscaler.domain.model.OutputFormat
@@ -110,6 +111,7 @@ internal fun JobEntity.toDomain(): UpscaleJob = UpscaleJob(
     format = runCatching { OutputFormat.valueOf(format) }.getOrDefault(OutputFormat.PNG),
     wdnAlpha = wdnAlpha,
     hdrEnabled = hdrEnabled,
+    hdrAdjust = HdrAdjust.decode(hdrAdjust),
     inputUri = inputUri,
     resultPath = resultPath,
     savedUri = savedUri,
@@ -134,6 +136,7 @@ internal fun UpscaleJob.toEntity(): JobEntity = JobEntity(
     format = format.name,
     wdnAlpha = wdnAlpha,
     hdrEnabled = hdrEnabled,
+    hdrAdjust = if (hdrEnabled) hdrAdjust.encode() else "",
     inputUri = inputUri,
     resultPath = resultPath,
     savedUri = savedUri,

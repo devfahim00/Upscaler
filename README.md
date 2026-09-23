@@ -117,11 +117,51 @@ parameter `r ∈ [−1, 1]` (encoded as `(r + 1) / 2` so it survives the
 standard [0,1] ARGB bridge). `HdrCurve` (pure Kotlin, unit-tested against
 numpy-verified vectors) then bilinearly upsamples the curve map to the
 photo resolution (align-corners, matching `UpsamplingBilinear2d`) and
-applies the 8-iteration curve `x ← x + r·(x² − x)` per channel. `r > 0`
-darkens midtones, `r < 0` brightens them — the network was trained to pick
-the direction and strength that produce a well-exposed, HDR-style result.
-Because the network sees a 1/12 view, the pass adds only a small fraction
-of the upscale's runtime and memory even on large photos.
+applies the 8-iteration curve `x ← x + r'·(x² − x)` per channel, where
+`r' = strength · r`. Because the network sees a 1/12 view, the pass adds
+only a small fraction of the upscale's runtime and memory even on large
+photos.
+
+### The natural look
+
+At full strength the Zero-DCE++ curve looks great on the low-light images
+it was trained on, but over-brightens normally-exposed photos (global
+exposure up, highlights washing out). The app therefore runs the pass with
+**three guards** on by default:
+
+1. **Strength slider** (default 65%) — scales the curve parameter before
+   the iterations; 0 disables the curve, 100% is the original effect.
+2. **Auto exposure anchor** — limits how far the *global* mean luminance
+   may rise: at most +8% on well-exposed photos (the punch has to come
+   from local contrast), scaling up to +150% on near-black scenes where
+   lifting is the whole point. Applied as a single multiplicative gain
+   over the curve output.
+3. **Highlight protection** (default knee 0.8) — pixels whose original
+   max channel rises above the knee keep progressively more of their
+   original value (smoothstep towards white), so bright skies and lamps
+   never clip.
+
+### Advanced adjustments
+
+Behind the collapsed **Advanced adjustments** section (for advanced
+users; all sliders start neutral): **Exposure** (±EV), **Brightness**
+(additive), **Contrast** (2^v around mid-gray), **Gamma** (2^(−1.2v)),
+**Saturation** (Rec.709 luma mix; −100% = grayscale), **Temperature**
+(warm/cool), **Tint** (green/magenta), **Highlight protection**
+(knee 1.0–0.6) and **Sharpness** (3×3 unsharp mask, [1 2 1; 2 4 2; 1 2 1]/16).
+These are applied *after* the curve + anchor + mask (see `HdrAdjustOps`,
+numpy-vector-tested), so the automatic natural-look guards are never
+fought by the manual controls, and a **Reset** button restores the
+factory defaults.
+
+### HDR-only mode (no upscale)
+
+The **HDR only** chip in the scale row (`ScaleOption.X1`) applies just the
+enhancement pass — decode → cap (16 MP) → HDRNet pass → encode — with no
+upscaling at all. The model picker and the denoise slider are disabled in
+this mode, and the HDR switch is forced on. The tuning survives in the job
+row: `UpscaleJob.hdrAdjust` is stored in Room as a compact CSV
+(`jobs.hdrAdjust`, DB v4 with a non-destructive migration).
 
 ## How backend selection works
 

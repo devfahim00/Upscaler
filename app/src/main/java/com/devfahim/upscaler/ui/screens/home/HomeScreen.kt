@@ -51,6 +51,7 @@ import androidx.lifecycle.viewModelScope
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.devfahim.upscaler.R
+import com.devfahim.upscaler.domain.model.HdrAdjust
 import com.devfahim.upscaler.domain.model.ModelType
 import com.devfahim.upscaler.domain.model.OutputFormat
 import com.devfahim.upscaler.domain.model.ScaleOption
@@ -93,6 +94,7 @@ class HomeViewModel @Inject constructor(
         format: OutputFormat,
         wdnAlpha: Float,
         hdrEnabled: Boolean,
+        hdrAdjust: HdrAdjust,
         onFirstEnqueued: (String) -> Unit,
     ) {
         viewModelScope.launch {
@@ -107,6 +109,7 @@ class HomeViewModel @Inject constructor(
                     format = format,
                     wdnAlpha = wdnAlpha,
                     hdrEnabled = hdrEnabled,
+                    hdrAdjust = hdrAdjust,
                 )
                 if (firstId == null) firstId = id
             }
@@ -213,12 +216,12 @@ fun HomeScreen(
                 defaultFormat = settings?.outputFormat ?: OutputFormat.PNG,
                 initialHdrModels = settings?.hdrEnabledModels ?: emptySet(),
                 onHdrToggle = viewModel::setHdrEnabled,
-                onProcess = { model, scale, format, wdnAlpha, hdr ->
+                onProcess = { model, scale, format, wdnAlpha, hdr, adjust ->
                     optionsOpen = false
                     val uris = pickedPhotos
                     pickedPhotos = emptyList()
                     viewModel.startPhotoJobs(
-                        uris, model, scale, format, wdnAlpha, hdr,
+                        uris, model, scale, format, wdnAlpha, hdr, adjust,
                         onFirstEnqueued = onOpenJob,
                     )
                 },

@@ -72,36 +72,45 @@ class SettingsDataStore @Inject constructor(
 
     override suspend fun current(): AppSettings = settings.first()
 
-    override suspend fun setOnboardingDone() =
+    override suspend fun setOnboardingDone() {
         context.dataStore.edit { it[Keys.ONBOARDING_DONE] = true }
+    }
 
-    override suspend fun setDefaultPhotoModel(model: ModelType) =
+    override suspend fun setDefaultPhotoModel(model: ModelType) {
         context.dataStore.edit { it[Keys.DEFAULT_MODEL] = model.name }
+    }
 
-    override suspend fun setDefaultScale(scale: ScaleOption) =
+    override suspend fun setDefaultScale(scale: ScaleOption) {
         context.dataStore.edit { it[Keys.DEFAULT_SCALE] = scale.name }
+    }
 
-    override suspend fun setOutputFormat(format: OutputFormat) =
+    override suspend fun setOutputFormat(format: OutputFormat) {
         context.dataStore.edit { it[Keys.OUTPUT_FORMAT] = format.name }
+    }
 
-    override suspend fun setJpegQuality(quality: Int) =
+    override suspend fun setJpegQuality(quality: Int) {
         context.dataStore.edit { it[Keys.JPEG_QUALITY] = quality.coerceIn(1, 100) }
+    }
 
-    override suspend fun setBackendPreference(pref: BackendPreference) =
+    override suspend fun setBackendPreference(pref: BackendPreference) {
         context.dataStore.edit { it[Keys.BACKEND_PREF] = pref.name }
+    }
 
-    override suspend fun setThemeMode(mode: ThemeMode) =
+    override suspend fun setThemeMode(mode: ThemeMode) {
         context.dataStore.edit { it[Keys.THEME_MODE] = mode.name }
+    }
 
-    override suspend fun setLanguageTag(tag: String) =
+    override suspend fun setLanguageTag(tag: String) {
         context.dataStore.edit { it[Keys.LANGUAGE_TAG] = tag }
+    }
 
-    override suspend fun storeBenchmark(gpuMs: Double?, cpuMs: Double?, modelKey: String) =
+    override suspend fun storeBenchmark(gpuMs: Double?, cpuMs: Double?, modelKey: String) {
         context.dataStore.edit {
             if (gpuMs != null) it[Keys.GPU_BENCH_MS] = gpuMs
             if (cpuMs != null) it[Keys.CPU_BENCH_MS] = cpuMs
             it[Keys.BENCH_MODEL] = modelKey
         }
+    }
 
     private inline fun <reified T : Enum<T>> enumOrDefault(
         stored: String?,

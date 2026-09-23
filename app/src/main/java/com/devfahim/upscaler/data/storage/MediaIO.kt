@@ -113,9 +113,11 @@ class MediaIO @Inject constructor(
             val w = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)?.toIntOrNull() ?: 0
             val h = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)?.toIntOrNull() ?: 0
             if (w <= 0 || h <= 0) return null
-            val rotation = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ROTATION)?.toIntOrNull() ?: 0
+            // METADATA_KEY_ROTATION / _FRAMERATE are hidden in the SDK; the
+            // runtime accepts the raw string keys, which every device honors.
+            val rotation = r.extractMetadata("rotation")?.toIntOrNull() ?: 0
             val fps = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CAPTURE_FRAMERATE)?.toFloatOrNull()
-                ?: (r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_FRAMERATE) ?: "30").toFloatOrNull()
+                ?: r.extractMetadata("framerate")?.toFloatOrNull()
                 ?: 30f
             val duration = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull() ?: 0L
             val hasAudio = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO) == "yes"

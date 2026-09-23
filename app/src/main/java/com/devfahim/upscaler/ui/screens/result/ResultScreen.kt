@@ -17,7 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -286,7 +286,7 @@ private fun CompletedBody(job: UpscaleJob, viewModel: ResultViewModel) {
                 onClick = { viewModel.saveToGallery(job) },
                 modifier = Modifier.weight(1f),
             ) {
-                Icon(Icons.Filled.Save, null, Modifier.size(18.dp))
+                Icon(Icons.Filled.Done, null, Modifier.size(18.dp))
                 Spacer(Modifier.size(6.dp))
                 Text(stringResource(R.string.action_save))
             }

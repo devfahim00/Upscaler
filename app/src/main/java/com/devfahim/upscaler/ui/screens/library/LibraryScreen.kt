@@ -162,7 +162,7 @@ private fun LibraryCell(job: UpscaleJob, onClick: () -> Unit, onDelete: () -> Un
                     .aspectRatio(1f),
             )
             if (job.status != JobStatus.COMPLETED) {
-                StatusBadge(job)
+                StatusBadge(job, Modifier.align(androidx.compose.ui.Alignment.TopStart))
             }
             IconButton(onClick = onDelete, modifier = Modifier.align(androidx.compose.ui.Alignment.TopEnd)) {
                 Icon(
@@ -186,7 +186,7 @@ private fun LibraryCell(job: UpscaleJob, onClick: () -> Unit, onDelete: () -> Un
 }
 
 @Composable
-private fun StatusBadge(job: UpscaleJob) {
+private fun StatusBadge(job: UpscaleJob, modifier: Modifier = Modifier) {
     val (labelRes, color) = when (job.status) {
         JobStatus.RUNNING -> R.string.status_running to androidx.compose.ui.graphics.Color(0xCC0288D1)
         JobStatus.QUEUED -> R.string.status_queued to androidx.compose.ui.graphics.Color(0xCC616161)
@@ -197,9 +197,7 @@ private fun StatusBadge(job: UpscaleJob) {
     androidx.compose.material3.Surface(
         color = color,
         shape = MaterialTheme.shapes.small,
-        modifier = Modifier
-            .align(androidx.compose.ui.Alignment.TopStart)
-            .padding(6.dp),
+        modifier = modifier.padding(6.dp),
     ) {
         Text(
             stringResource(labelRes),

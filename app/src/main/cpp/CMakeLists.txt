@@ -30,6 +30,11 @@ find_package(ncnn REQUIRED)
 
 add_library(upscaler SHARED ncnn_jni.cpp)
 
+# ncnn's imported target adds <abi>/include/ncnn to the include path (so
+# `#include <net.h>` works). We also add <abi>/include so the conventional
+# `#include <ncnn/net.h>` spelling resolves.
+target_include_directories(upscaler PRIVATE "${NCNN_ANDROID_DIR}/${ANDROID_ABI}/include")
+
 target_link_libraries(upscaler
     ncnn
     android

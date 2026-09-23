@@ -59,7 +59,7 @@ class VideoUpscaleEngine @Inject constructor(
     }
 
     fun interface ProgressListener {
-        fun onProgress(frame: Int, totalFrames: Int, etaSeconds: Long?)
+        suspend fun onProgress(frame: Int, totalFrames: Int, etaSeconds: Long?)
     }
 
     /** Tile edge for video frames (bigger than photos: fewer, larger tiles). */
@@ -142,7 +142,7 @@ class VideoUpscaleEngine @Inject constructor(
         throw IllegalStateException("Video processing failed: ${t.message}", t)
     }
 
-    private fun processInternal(
+    private suspend fun processInternal(
         inputUri: Uri,
         outputFile: File,
         model: ModelType,
@@ -277,7 +277,7 @@ class VideoUpscaleEngine @Inject constructor(
     // The decode -> upscale -> encode -> mux loop
     // ------------------------------------------------------------------
 
-    private fun runLoop(
+    private suspend fun runLoop(
         extractor: MediaExtractor,
         decoder: MediaCodec,
         encoder: MediaCodec,

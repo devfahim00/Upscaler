@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
@@ -103,7 +104,7 @@ fun CompareSlider(
             modifier = Modifier
                 .fillMaxSize()
                 .drawWithContent {
-                    androidx.compose.ui.graphics.drawscope.clipRect(
+                    clipRect(
                         left = 0f,
                         top = 0f,
                         right = size.width * fraction,

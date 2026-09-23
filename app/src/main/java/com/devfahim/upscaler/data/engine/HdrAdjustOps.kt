@@ -1,7 +1,6 @@
 package com.devfahim.upscaler.data.engine
 
 import com.devfahim.upscaler.domain.model.HdrAdjust
-import kotlin.math.exp2
 import kotlin.math.pow
 
 /**
@@ -58,10 +57,11 @@ object HdrAdjustOps {
     fun apply(argb: IntArray, width: Int, height: Int, a: HdrAdjust) {
         if (a.advancedNeutral) return
 
-        val expGain = if (a.exposure != 0f) exp2(a.exposure) else 1f
+        // pow(2f, v) == 2^v (kotlin.math has no exp2 in this Kotlin version).
+        val expGain = if (a.exposure != 0f) pow(2f, a.exposure) else 1f
         val bright = a.brightness * BRIGHTNESS_RANGE
-        val contrastF = if (a.contrast != 0f) exp2(a.contrast) else 1f
-        val gammaV = if (a.gamma != 0f) exp2(-1.2f * a.gamma) else 1f
+        val contrastF = if (a.contrast != 0f) pow(2f, a.contrast) else 1f
+        val gammaV = if (a.gamma != 0f) pow(2f, -1.2f * a.gamma) else 1f
         val tempR = 1f + a.temperature * TEMP_RANGE
         val tempB = 1f - a.temperature * TEMP_RANGE
         val tintRB = 1f + a.tint * TINT_RANGE

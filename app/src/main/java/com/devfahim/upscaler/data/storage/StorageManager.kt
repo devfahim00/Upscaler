@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.provider.MediaStore
 import com.devfahim.upscaler.domain.model.OutputFormat
 import java.io.File
@@ -46,7 +47,11 @@ class StorageManager @Inject constructor(
         displayName: String,
     ): Uri {
         val collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        val relativePath = "${MediaStore.Images.Media.RELATIVE_PATH}/Upscaler"
+        // NOTE: this must be a real directory like "Pictures/Upscaler" -
+        // MediaStore.MediaColumns.RELATIVE_PATH is just the column NAME
+        // ("relative_path"), and passing it here made every save fail with
+        // "Primary directory relative_path not allowed ...".
+        val relativePath = "${Environment.DIRECTORY_PICTURES}/Upscaler"
         val mime = format.mimeType
 
         val values = ContentValues().apply {
@@ -55,6 +60,13 @@ class StorageManager @Inject constructor(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath)
                 put(MediaStore.MediaColumns.IS_PENDING, 1)
+            } else {
+                // Legacy insert (Android 8/9, needs WRITE_EXTERNAL_STORAGE,
+                // requested at runtime from the result screen). Without an
+                // explicit date these entries can sort to the gallery bottom.
+                val now = System.currentTimeMillis() / 1000
+                put(MediaStore.MediaColumns.DATE_ADDED, now)
+                put(MediaStore.MediaColumns.DATE_MODIFIED, now)
             }
         }
 

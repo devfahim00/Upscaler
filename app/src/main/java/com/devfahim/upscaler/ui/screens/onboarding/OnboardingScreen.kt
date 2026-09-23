@@ -119,7 +119,13 @@ fun OnboardingScreen(
 
             if (pagerState.currentPage < pages.size - 1) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = onFinish) {
+                    OutlinedButton(onClick = {
+                        // Skipping also counts as "seen" - otherwise the
+                        // onboarding would reappear on every cold start
+                        // and first-launch flow would never settle.
+                        viewModel.finish()
+                        onFinish()
+                    }) {
                         Text(stringResource(R.string.action_skip))
                     }
                     Button(onClick = {

@@ -1,6 +1,11 @@
 package com.devfahim.upscaler.ui.screens.result
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -250,6 +256,36 @@ private fun FailedBody(job: UpscaleJob, onBack: () -> Unit) {
 @Composable
 private fun CompletedBody(job: UpscaleJob, viewModel: ResultViewModel) {
     val context = LocalContext.current
+    val saveFailedText = stringResource(R.string.result_save_failed)
+
+    // Copies into MediaStore and surfaces any failure as a toast.
+    fun doSave() {
+        viewModel.saveToGallery(job) { error ->
+            if (error != null) {
+                android.widget.Toast.makeText(
+                    context,
+                    saveFailedText.format(error.message ?: error.javaClass.simpleName),
+                    android.widget.Toast.LENGTH_LONG,
+                ).show()
+            }
+        }
+    }
+
+    // Android 8/9: MediaStore inserts need WRITE_EXTERNAL_STORAGE at
+    // runtime (scoped storage only starts at API 29).
+    val writePermission = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            doSave()
+        } else {
+            android.widget.Toast.makeText(
+                context,
+                saveFailedText.format("storage permission denied"),
+                android.widget.Toast.LENGTH_LONG,
+            ).show()
+        }
+    }
 
     Column(
         Modifier
@@ -286,17 +322,17 @@ private fun CompletedBody(job: UpscaleJob, viewModel: ResultViewModel) {
                 .padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            val saveFailedText = stringResource(R.string.result_save_failed)
             FilledTonalButton(
                 onClick = {
-                    viewModel.saveToGallery(job) { error ->
-                        if (error != null) {
-                            android.widget.Toast.makeText(
-                                context,
-                                saveFailedText.format(error.message ?: error.javaClass.simpleName),
-                                android.widget.Toast.LENGTH_LONG,
-                            ).show()
-                        }
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q &&
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        ) != PackageManager.PERMISSION_GRANTED
+                    ) {
+                        writePermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    } else {
+                        doSave()
                     }
                 },
                 modifier = Modifier.weight(1f),

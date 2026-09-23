@@ -96,7 +96,8 @@ fun CompareSlider(
             modifier = Modifier.fillMaxSize(),
         )
 
-        // Enhanced (clipped to the right of the handle).
+        // Enhanced (clipped to the right of the handle; the original shows
+        // through on the left, matching the labels below).
         AsyncImage(
             model = enhancedModel,
             contentDescription = null,
@@ -105,9 +106,9 @@ fun CompareSlider(
                 .fillMaxSize()
                 .drawWithContent {
                     clipRect(
-                        left = 0f,
+                        left = size.width * fraction,
                         top = 0f,
-                        right = size.width * fraction,
+                        right = size.width,
                         bottom = size.height,
                     ) {
                         this@drawWithContent.drawContent()

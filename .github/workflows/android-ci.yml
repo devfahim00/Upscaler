@@ -37,21 +37,17 @@ jobs:
       - name: Report build errors
         if: steps.build.outcome == 'failure'
         run: |
-          LN=$(grep -n "FAILURE: Build failed" build.log | head -1 | cut -d: -f1)
-          if [ -z "$LN" ]; then
-            LN=$(grep -n "^e: " build.log | head -1 | cut -d: -f1)
-          fi
-          if [ -z "$LN" ]; then
-            LN=1
-          fi
-          tail -n +"$LN" build.log | head -120 > errors.txt
+          LN=$(grep -n "ninja: Entering directory\|^e: \|FAILURE: Build" build.log | head -1 | cut -d: -f1)
+          if [ -z "$LN" ]; then LN=1; fi
+          tail -n +"$LN" build.log | grep -v "^Failed to \|^Task :" > errors.txt
           i=0
           while IFS= read -r line; do
             i=$((i+1))
-            if [ $i -gt 40 ]; then break; fi
+            if [ $i -gt 150 ]; then break; fi
             esc=$(printf '%s' "$line" | sed 's/%/%25/g')
             echo "::error::${esc}"
           done < errors.txt
+          wc -l build.log
           exit 1
 
       - name: Upload debug APK

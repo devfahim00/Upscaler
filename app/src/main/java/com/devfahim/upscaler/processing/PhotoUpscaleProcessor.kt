@@ -10,6 +10,7 @@ import com.devfahim.upscaler.domain.model.OutputFormat
 import com.devfahim.upscaler.domain.model.UpscaleJob
 import com.devfahim.upscaler.domain.repository.InferenceEngine
 import com.devfahim.upscaler.domain.repository.SettingsRepository
+import com.devfahim.upscaler.domain.tiling.MemoryGuard
 import com.devfahim.upscaler.domain.tiling.TilePlanner
 import com.devfahim.upscaler.domain.usecase.PlanUpscaleUseCase
 import com.devfahim.upscaler.domain.usecase.SelectBackendUseCase
@@ -74,25 +75,36 @@ class PhotoUpscaleProcessor @Inject constructor(
         // the model's native output equals the requested output. Keeps the
         // output buffer inside the memory budget and runs faster than a
         // native pass + downscale.
+        //
+        // Independently, the native-scale pass itself must stay within the
+        // memory budget regardless of the requested/native relationship -
+        // a large photo run through a x4 model can demand a 500MB+
+        // intermediate buffer and OOM before we ever get to downscale to
+        // the requested resolution. Take whichever bound is smaller.
         var work = source
+        val (safeW, safeH) = MemoryGuard.capInputForNativeScale(source.width, source.height, native)
+        var targetW = safeW
+        var targetH = safeH
         if (requested < native) {
             val factor = requested.toFloat() / native.toFloat()
-            val w = (source.width * factor).toInt().coerceAtLeast(8)
-            val h = (source.height * factor).toInt().coerceAtLeast(8)
-            work = Bitmap.createScaledBitmap(source, w, h, true)
+            targetW = minOf(targetW, (source.width * factor).toInt().coerceAtLeast(8))
+            targetH = minOf(targetH, (source.height * factor).toInt().coerceAtLeast(8))
+        }
+        if (targetW != source.width || targetH != source.height) {
+            work = Bitmap.createScaledBitmap(source, targetW, targetH, true)
             if (work != source) source.recycle()
         }
 
         val outBitmap = upscaleBitmap(work, job.model, decision, inferenceDispatcher, onProgress)
-        work.recycle()
 
         val plan = planUpscale(
-            width = outBitmap.width / native * requested.coerceAtLeast(1),
-            height = outBitmap.height / native * requested.coerceAtLeast(1),
+            width = work.width,
+            height = work.height,
             requestedScale = requested,
             nativeModelScale = native,
             backendUsesGpu = decision.backend == BackendMode.GPU,
         )
+        work.recycle()
 
         var final = outBitmap
         if (final.width != plan.outputWidth || final.height != plan.outputHeight) {

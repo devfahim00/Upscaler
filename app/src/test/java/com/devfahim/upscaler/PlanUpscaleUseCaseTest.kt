@@ -1,6 +1,7 @@
 package com.devfahim.upscaler
 
 import com.devfahim.upscaler.domain.model.ModelType
+import com.devfahim.upscaler.domain.tiling.MemoryGuard
 import com.devfahim.upscaler.domain.usecase.PlanUpscaleUseCase
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -49,7 +50,7 @@ class PlanUpscaleUseCaseTest {
             backendUsesGpu = true,
             tileSizeOverride = ModelType.GENERAL_PHOTO_X4.tileSizeFor(backendUsesGpu = true),
         )
-        assertEquals(ModelType.HQ_GPU_TILE_SIZE, gpuHq.tileSize)
+        assertEquals(MemoryGuard.HQ_GPU_TILE_SIZE, gpuHq.tileSize)
         assertTrue(gpuHq.tiles.size > gpuCompact.tiles.size)
     }
 }

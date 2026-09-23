@@ -64,8 +64,8 @@ enum class ModelType(
         nativeScale = 4,
         displayNameRes = R.string.model_hq_photo_x4_name,
         descriptionRes = R.string.model_hq_photo_x4_desc,
-        cpuTileSize = HQ_CPU_TILE_SIZE,
-        gpuTileSize = HQ_GPU_TILE_SIZE,
+        cpuTileSize = MemoryGuard.HQ_CPU_TILE_SIZE,
+        gpuTileSize = MemoryGuard.HQ_GPU_TILE_SIZE,
     ),
 
     /**
@@ -107,14 +107,6 @@ enum class ModelType(
          * slider, which blends it with the base model at runtime.
          */
         const val WDN_ASSET_DIR: String = "realesr-general-wdn-x4v3"
-
-        /**
-         * RRDBNet keeps ~140 feature maps alive per tile (dense blocks +
-         * per-block outputs), so it needs much smaller tiles than the
-         * compact SRVGG networks to stay inside a low-RAM budget.
-         */
-        const val HQ_CPU_TILE_SIZE: Int = 64
-        const val HQ_GPU_TILE_SIZE: Int = 96
     }
 }
 

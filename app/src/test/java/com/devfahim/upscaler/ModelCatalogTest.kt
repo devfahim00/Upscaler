@@ -2,6 +2,7 @@ package com.devfahim.upscaler
 
 import com.devfahim.upscaler.domain.model.ModelType
 import com.devfahim.upscaler.domain.model.ScaleOption
+import com.devfahim.upscaler.domain.tiling.MemoryGuard
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -36,8 +37,8 @@ class ModelCatalogTest {
         // RRDBNet keeps many more feature maps alive - must use smaller tiles.
         assertTrue(ModelType.HQ_PHOTO_X4.cpuTileSize < ModelType.GENERAL_PHOTO_X4.cpuTileSize)
         assertTrue(ModelType.HQ_PHOTO_X4.gpuTileSize < ModelType.GENERAL_PHOTO_X4.gpuTileSize)
-        assertEquals(ModelType.HQ_CPU_TILE_SIZE, ModelType.HQ_PHOTO_X4.cpuTileSize)
-        assertEquals(ModelType.HQ_GPU_TILE_SIZE, ModelType.HQ_PHOTO_X4.gpuTileSize)
+        assertEquals(MemoryGuard.HQ_CPU_TILE_SIZE, ModelType.HQ_PHOTO_X4.cpuTileSize)
+        assertEquals(MemoryGuard.HQ_GPU_TILE_SIZE, ModelType.HQ_PHOTO_X4.gpuTileSize)
     }
 
     @Test

@@ -29,6 +29,18 @@ object MemoryGuard {
     const val GPU_TILE_SIZE: Int = 256
 
     /**
+     * Tile body edge for the full RRDBNet "High Quality" photo model
+     * (RealESRGAN_x4plus) on the CPU backend. RRDBNet keeps ~140 feature
+     * maps alive per tile (dense blocks + per-block outputs), so it needs
+     * much smaller tiles than the compact SRVGG networks to stay inside a
+     * low-RAM budget.
+     */
+    const val HQ_CPU_TILE_SIZE: Int = 64
+
+    /** Tile body edge for the HQ (RRDBNet) model on the Vulkan GPU backend. */
+    const val HQ_GPU_TILE_SIZE: Int = 96
+
+    /**
      * Chooses the effective scale so the output stays within budget.
      *
      * @return the effective scale (never larger than [requestedScale]) and

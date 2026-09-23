@@ -79,11 +79,20 @@ class ResultViewModel @Inject constructor(
         return boundFlow!!
     }
 
-    /** Copies the private result into MediaStore (Gallery) and records it. */
-    fun saveToGallery(job: UpscaleJob, onDone: () -> Unit = {}) {
+    /**
+     * Copies the private result into MediaStore (Gallery) and records it.
+     * [onDone] receives the failure, if any - the caller decides how to
+     * surface it (previously this swallowed every error silently, so a
+     * failed save looked identical to a successful one).
+     */
+    fun saveToGallery(job: UpscaleJob, onDone: (Throwable?) -> Unit = {}) {
         viewModelScope.launch {
-            val path = job.resultPath ?: return@launch
-            runCatching {
+            val path = job.resultPath
+            if (path == null) {
+                onDone(IllegalStateException("No result file for this job."))
+                return@launch
+            }
+            val result = runCatching {
                 val uri = withContext(Dispatchers.IO) {
                     storage.saveToGallery(
                         file = File(path),
@@ -94,7 +103,7 @@ class ResultViewModel @Inject constructor(
                 }
                 jobsRepository.markSaved(job.id, uri.toString())
             }
-            onDone()
+            onDone(result.exceptionOrNull())
         }
     }
 
@@ -282,8 +291,19 @@ private fun CompletedBody(job: UpscaleJob, viewModel: ResultViewModel) {
                 .padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            val saveFailedText = stringResource(R.string.result_save_failed)
             FilledTonalButton(
-                onClick = { viewModel.saveToGallery(job) },
+                onClick = {
+                    viewModel.saveToGallery(job) { error ->
+                        if (error != null) {
+                            android.widget.Toast.makeText(
+                                context,
+                                saveFailedText.format(error.message ?: error.javaClass.simpleName),
+                                android.widget.Toast.LENGTH_LONG,
+                            ).show()
+                        }
+                    }
+                },
                 modifier = Modifier.weight(1f),
             ) {
                 Icon(Icons.Filled.Done, null, Modifier.size(18.dp))

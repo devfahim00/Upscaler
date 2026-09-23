@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">আপস্কেলার</string>
+    <string name="splash_tagline">১০০% অফলাইন এআই এনহ্যান্সমেন্ট</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">হোম</string>
+    <string name="nav_library">লাইব্রেরি</string>
+    <string name="nav_settings">সেটিংস</string>
+    <string name="nav_about">পরিচিতি</string>
+
+    <!-- Actions -->
+    <string name="action_back">ফিরে যান</string>
+    <string name="action_cancel">বাতিল</string>
+    <string name="action_delete">মুছুন</string>
+    <string name="action_next">পরবর্তী</string>
+    <string name="action_skip">এড়িয়ে যান</string>
+    <string name="action_get_started">শুরু করুন</string>
+    <string name="action_process">এখনই আপস্কেল করুন</string>
+    <string name="action_save">গ্যালারিতে সংরক্ষণ</string>
+    <string name="action_share">শেয়ার</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_1_title">ঝকঝকে ছবি ও ভিডিও</string>
+    <string name="onboarding_1_body">গতির জন্য তৈরি একটি কমপ্যাক্ট নিউরাল নেটওয়ার্ক দিয়ে আপনার ফোনেই ছবি ৪x পর্যন্ত আপস্কেল করুন এবং ভিডিও উন্নত করুন।</string>
+    <string name="onboarding_2_title">১০০% অফলাইন</string>
+    <string name="onboarding_2_body">সবকিছু আপনার ডিভাইসেই চলে। আপনার ছবি ও ভিডিও কখনোই ফোন ছেড়ে যায় না - অ্যাপটি ইন্টারনেট অনুমতি চায়ই না।</string>
+    <string name="onboarding_3_title">বেছে নিন, উন্নত করুন, তুলনা করুন</string>
+    <string name="onboarding_3_body">ছবি, অ্যানিমে বা নয়েজি ছবির জন্য মডেল বেছে নিন, তারপর ড্র্যাগ করা যায় এমন আগে/পরে স্লাইডার দিয়ে ফলাফল তুলনা করুন। আপনার লাইব্রেরি প্রতিটি ফলাফল সংরক্ষণ করে।</string>
+
+    <!-- Home -->
+    <string name="home_upscale_photo">ছবি আপস্কেল</string>
+    <string name="home_upscale_photo_sub">ছবি ৪x পর্যন্ত ঝকঝকে</string>
+    <string name="home_upscale_video">ভিডিও আপস্কেল</string>
+    <string name="home_upscale_video_sub">ফ্রেম-ধরে-ফ্রেম এনহ্যান্সমেন্ট</string>
+    <string name="home_recent">সাম্প্রতিক</string>
+    <string name="home_offline_banner">১০০% অফলাইন - আপনার ছবি ও ভিডিও এই ডিভাইস ছেড়ে কখনোই যায় না।</string>
+    <string name="kind_photo">ছবি</string>
+    <string name="kind_video">ভিডিও</string>
+
+    <!-- Options -->
+    <string name="options_title">ছবি এনহ্যান্স করুন</string>
+    <string name="options_title_batch">%1$dটি ছবি এনহ্যান্স করুন</string>
+    <string name="options_model">মডেল</string>
+    <string name="options_scale">স্কেল</string>
+    <string name="options_format">আউটপুট ফরম্যাট</string>
+    <string name="options_quality">গুণমান: %1$d%%</string>
+    <string name="options_cap">আউটপুট রেজোলিউশন সীমা</string>
+    <string name="model_general_photo_x4_name">ছবি x4 (ডিফল্ট)</string>
+    <string name="model_general_photo_x4_desc">Real-ESRGAN সাধারণ মডেল। আসল ছবির জন্য সেরা ব্যালেন্স।</string>
+    <string name="model_general_photo_x2_name">ছবি x2 (দ্রুত)</string>
+    <string name="model_general_photo_x2_desc">প্রিভিউ ও কম-শক্তির ডিভাইসের জন্য দ্রুততর 2x পাস।</string>
+    <string name="model_anime_x4_name">অ্যানিমে / ইলাস্ট্রেশন x4</string>
+    <string name="model_anime_x4_desc">ধারালো রেখা ও ফ্ল্যাট রঙ। ড্রয়িং ও লোগোর জন্য দুর্দান্ত।</string>
+    <string name="model_denoise_x4_name">ডিনয়েজ x4</string>
+    <string name="model_denoise_x4_desc">পুরনো কমপ্রেসড ছবি, স্ক্রিনশট ও নয়েজি ছবির জন্য।</string>
+    <string name="model_video_x2_name">ভিডিও x2 (ব্যালেন্সড)</string>
+    <string name="model_video_x2_desc">গতির জন্য অপ্টিমাইজড 2x প্রতি-ফ্রেম আপস্কেলিং।</string>
+    <string name="model_video_x4_name">ভিডিও x4 (সর্বোচ্চ গুণমান)</string>
+    <string name="model_video_x4_desc">4x প্রতি-ফ্রেম আপস্কেলিং। ধীর, সর্বাধিক ডিটেইল।</string>
+    <string name="model_standin_note">(সবচেয়ে কাছের উপলব্ধ কমপ্যাক্ট ওয়েট - বদলানো যায়)</string>
+    <string name="format_png">PNG</string>
+    <string name="format_jpeg">JPEG</string>
+    <string name="format_webp">WEBP</string>
+    <string name="cap_none">সীমা নেই</string>
+    <string name="cap_1080p">সর্বোচ্চ 1080p</string>
+    <string name="cap_2160p">সর্বোচ্চ 4K</string>
+
+    <!-- Video options -->
+    <string name="video_options_title">ভিডিও আপস্কেল</string>
+    <string name="video_metadata_title">সোর্স</string>
+    <string name="video_metadata_dims">%1$d × %2$d</string>
+    <string name="video_metadata_fps">%1$.1f fps</string>
+    <string name="video_metadata_duration">%1$d সে</string>
+    <string name="video_metadata_audio_yes">অডিও: হ্যাঁ (অপরিবর্তিত কপি)</string>
+    <string name="video_metadata_audio_no">অডিও: নেই</string>
+    <string name="video_metadata_loading">ভিডিও তথ্য পড়া হচ্ছে…</string>
+    <string name="video_est_time">আনুমানিক সময়: প্রায় %1$d মি %2$d সে</string>
+    <string name="video_preview">২টি ফ্রেম প্রিভিউ</string>
+    <string name="video_preview_hint">নির্বাচিত মডেল দিয়ে আপস্কেল করা প্রিভিউ ফ্রেম</string>
+    <string name="video_start">প্রসেসিং শুরু করুন</string>
+
+    <!-- Processing -->
+    <string name="processing_photo_title">ছবি আপস্কেল হচ্ছে</string>
+    <string name="processing_video_title">ভিডিও আপস্কেল হচ্ছে</string>
+    <string name="processing_preparing">প্রস্তুত হচ্ছে…</string>
+    <string name="processing_queued">সারিতে আছে</string>
+    <string name="processing_running">%1$d%% সম্পন্ন</string>
+
+    <!-- Result -->
+    <string name="result_title">ফলাফল</string>
+    <string name="result_info">%1$d × %2$d · %3$d সেকেন্ডে সম্পন্ন</string>
+    <string name="result_saved_notice">গ্যালারিতে সংরক্ষিত</string>
+    <string name="result_failed">প্রসেসিং ব্যর্থ হয়েছে</string>
+    <string name="result_cancelled">বাতিল করা হয়েছে</string>
+    <string name="compare_original">মূল</string>
+    <string name="compare_enhanced">উন্নত</string>
+    <string name="delete_confirm_title">এই আইটেমটি মুছবেন?</string>
+    <string name="delete_confirm_text">ফলাফল ফাইল ও লাইব্রেরি এন্ট্রি মুছে যাবে।</string>
+
+    <!-- Library -->
+    <string name="filter_all">সব</string>
+    <string name="filter_photos">ছবি</string>
+    <string name="filter_videos">ভিডিও</string>
+    <string name="library_empty_title">এখনো কিছু নেই</string>
+    <string name="library_empty_sub">আপনি যেসব ছবি ও ভিডিও আপস্কেল করবেন সেগুলো এখানে দেখা যাবে।</string>
+    <string name="status_queued">সারিতে</string>
+    <string name="status_running">চলছে</string>
+    <string name="status_completed">সম্পন্ন</string>
+    <string name="status_failed">ব্যর্থ</string>
+    <string name="status_cancelled">বাতিল</string>
+
+    <!-- Settings -->
+    <string name="settings_processing">প্রসেসিং ডিফল্ট</string>
+    <string name="settings_default_model">ডিফল্ট ছবি মডেল</string>
+    <string name="settings_default_scale">ডিফল্ট স্কেল</string>
+    <string name="settings_format">আউটপুট ফরম্যাট</string>
+    <string name="settings_backend">ইনফারেন্স ব্যাকএন্ড</string>
+    <string name="settings_backend_desc">অটো মোডে সম্ভব হলে Vulkan GPU নেয়, না থাকলে বা ধীর হলে CPU-তে ফিরে যায়।</string>
+    <string name="backend_auto">অটো</string>
+    <string name="backend_gpu">GPU বাধ্যতামূলক</string>
+    <string name="backend_cpu">CPU বাধ্যতামূলক</string>
+    <string name="settings_benchmark">বেঞ্চমার্ক চালান</string>
+    <string name="settings_bench_result">GPU %1$.1f মি·সে · CPU %2$.1f মি·সে</string>
+    <string name="settings_appearance">চেহারা</string>
+    <string name="settings_theme">থিম</string>
+    <string name="theme_system">সিস্টেম</string>
+    <string name="theme_light">লাইট</string>
+    <string name="theme_dark">ডার্ক</string>
+    <string name="settings_language">অ্যাপের ভাষা</string>
+    <string name="language_system">সিস্টেম</string>
+    <string name="settings_storage">স্টোরেজ</string>
+    <string name="settings_cache_size">ক্যাশ: %1$.1f এমবি</string>
+    <string name="settings_clear_cache">টেম্প ফাইল মুছুন</string>
+    <string name="settings_about">পরিচিতি</string>
+    <string name="settings_version">ভার্সন %1$s</string>
+
+    <!-- Notifications -->
+    <string name="channel_processing">প্রসেসিং</string>
+    <string name="channel_processing_desc">ছবি ও ভিডিও আপস্কেল হওয়ার সময় অগ্রগতি দেখায়।</string>
+    <string name="notif_photo_processing_title">ছবি আপস্কেল হচ্ছে</string>
+    <string name="notif_video_processing_title">ভিডিও আপস্কেল হচ্ছে</string>
+    <string name="notif_processing_desc">অ্যাপ বন্ধ করলেও প্রসেসিং চলতে থাকে।</string>
+    <string name="notif_video_progress">%1$d / %2$d ফ্রেম</string>
+    <string name="eta_minutes"> · %1$d মি %2$d সে বাকি</string>
+    <string name="eta_seconds"> · %1$d সে বাকি</string>
+
+    <!-- About -->
+    <string name="about_version">ভার্সন %1$s</string>
+    <string name="about_offline">কোনো ইন্টারনেট অনুমতি নেই - সম্পূর্ণ অফলাইন</string>
+    <string name="about_how_title">যেভাবে কাজ করে</string>
+    <string name="about_how_body">একটি কমপ্যাক্ট সুপার-রেজোলিউশন নেটওয়ার্ক (Real-ESRGAN-এর দ্রুত মডেলগুলোতে ব্যবহৃত SRVGGNetCompact পরিবার) Tencent-এর ncnn ইঞ্জিনের মাধ্যমে স্থানীয়ভাবে চলে, সম্ভব হলে ফোনের GPU ব্যবহার করে। বড় ছবি ওভারল্যাপিং টাইলে প্রসেস হয় যাতে মেমরি নিরাপদ থাকে, আর ভিডিও ফ্রেম-ধরে-ফ্রেম উন্নত হয় যখন অডিও অপরিবর্তিত থাকে।</string>
+    <string name="about_credits_title">ওপেন-সোর্স কৃতজ্ঞতা</string>
+    <string name="about_credits_ncnn">ইনফারেন্স: Tencent-এর ncnn (BSD 3-Clause) - https://github.com/Tencent/ncnn</string>
+    <string name="about_credits_realesrgan">মডেল: Xinntao ও অন্যান্যদের Real-ESRGAN (BSD 3-Clause) - https://github.com/xinntao/Real-ESRGAN</string>
+    <string name="about_credits_note">কিছু বান্ডেল করা মডেল তালিকাভুক্ত ব্যবহারের জন্য সবচেয়ে কাছের উপলব্ধ কমপ্যাক্ট ভ্যারিয়েন্ট এবং মডেল পিকারে স্পষ্টভাবে চিহ্নিত; পরে এগুলো উদ্দেশ্যে-প্রশিক্ষিত ওয়েট দিয়ে বদলানো যাবে।</string>
+    <string name="about_privacy_title">গোপনীয়তা</string>
+    <string name="about_privacy_body">অ্যাপটি আদৌ কোনো ইন্টারনেট অ্যাক্সেস চায় না। আপনি যা প্রসেস করেন তা স্বয়ংক্রিয়ভাবে আপলোড, লগ বা শেয়ার হয় না। লাইব্রেরি থেকে কোনো আইটেম মুছলে তার ফলাফল ফাইলও মুছে যায়।</string>
+</resources>

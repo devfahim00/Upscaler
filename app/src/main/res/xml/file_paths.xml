@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Result files (share + save flows) -->
+    <files-path name="results" path="results/" />
+    <!-- Video preview frames are written to the cache -->
+    <cache-path name="previews" path="." />
+</paths>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- Room DB + DataStore are backed up; large result files are not. -->
+    <include domain="database" path="." />
+    <include domain="sharedpref" path="." />
+    <exclude domain="file" path="results/" />
+    <exclude domain="file" path="thumbs/" />
+    <exclude domain="file" path="models/" />
+</full-backup-content>

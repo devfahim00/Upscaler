@@ -27,6 +27,7 @@
 #include <mutex>
 #include <string>
 
+#include <ncnn/cpu.h>
 #include <ncnn/gpu.h>
 #include <ncnn/mat.h>
 #include <ncnn/net.h>
@@ -142,7 +143,7 @@ Java_com_devfahim_upscaler_data_engine_EngineBridge_nativeCreateEngine(
             return 0; // caller falls back to CPU
         }
         engine->net.opt.use_vulkan_compute = true;
-        engine->net.opt.gpu_index = 0;
+        engine->net.opt.vulkan_device_index = 0;
     } else {
         engine->net.opt.use_vulkan_compute = false;
     }
@@ -245,7 +246,7 @@ Java_com_devfahim_upscaler_data_engine_EngineBridge_nativeBenchmark(
         ensure_gpu_instance();
         if (ncnn::get_gpu_count() <= 0) return -1.0;
         net.opt.use_vulkan_compute = true;
-        net.opt.gpu_index = 0;
+        net.opt.vulkan_device_index = 0;
     } else {
         net.opt.use_vulkan_compute = false;
     }

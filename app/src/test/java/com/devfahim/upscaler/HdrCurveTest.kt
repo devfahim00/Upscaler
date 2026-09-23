@@ -290,8 +290,12 @@ class HdrCurveTest {
 
         HdrCurve.enhanceNatural(orig, out, 4, 1, curve, 1, 1, HdrAdjust())
 
-        // numpy: 15->33, 25->52, 35->69, 45->84 (dark budget allows ~+53%).
-        val expected = intArrayOf(33, 52, 69, 84)
+        // Traced through the real float32 pipeline: the curve alone lifts
+        // the mean 2.33x, then the dark-scene budget
+        // ((0.45 - 0.118) * 1.6 = +53%) anchors it back. The highlight
+        // mask is a no-op here (all pixels below the knee) and the bounded
+        // second pass changes no byte.
+        val expected = intArrayOf(26, 40, 53, 65)
         for (i in expected.indices) {
             val v = (out[i] shr 16) and 0xFF
             assertTrue("px $i: $v not in ${expected[i] - 1}..${expected[i] + 1}",

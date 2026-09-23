@@ -91,6 +91,7 @@
     <string name="result_title">Result</string>
     <string name="result_info">%1$d × %2$d · done in %3$d s</string>
     <string name="result_saved_notice">Saved to Gallery</string>
+    <string name="result_save_failed">Couldn\'t save to Gallery: %1$s</string>
     <string name="result_failed">Processing failed</string>
     <string name="result_cancelled">Cancelled</string>
     <string name="compare_original">Original</string>

@@ -34,10 +34,12 @@
 #include <ncnn/platform.h>
 
 // Input/output blob names. These match every model bundled in
-// app/src/main/assets/models (realesr-general-x4v3, realesr-animevideov3-x2,
-// realesr-animevideov3-x4 - all SRVGGNetCompact exports). If you add a model
-// with different blob names, adjust here (or convert the model so its input
-// blob is "data" and output blob is "output" - see README.md).
+// app/src/main/assets/models (realesr-general-x4v3,
+// realesr-general-wdn-x4v3, realesr-animevideov3-x2, realesr-animevideov3-x4
+// - SRVGGNetCompact exports - and RealESRGAN_x4plus, the full RRDBNet). If
+// you add a model with different blob names, adjust here (or convert the
+// model so its input blob is "data" and output blob is "output" - see
+// README.md).
 static const char* kInputBlob = "data";
 static const char* kOutputBlob = "output";
 

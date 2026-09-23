@@ -39,7 +39,6 @@ import com.devfahim.upscaler.ui.screens.about.AboutScreen
 import com.devfahim.upscaler.ui.screens.home.HomeScreen
 import com.devfahim.upscaler.ui.screens.library.LibraryScreen
 import com.devfahim.upscaler.ui.screens.onboarding.OnboardingScreen
-import com.devfahim.upscaler.ui.screens.options.VideoOptionsScreen
 import com.devfahim.upscaler.ui.screens.processing.ProcessingScreen
 import com.devfahim.upscaler.ui.screens.result.ResultScreen
 import com.devfahim.upscaler.ui.screens.settings.SettingsScreen
@@ -173,9 +172,6 @@ private fun UpscalerNavHost(
             HomeScreen(
                 onOpenJob = { jobId -> navController.navigate(Routes.result(jobId)) },
                 onOpenLibrary = { navController.navigate(Routes.LIBRARY) },
-                onOpenVideoOptions = { encodedUri ->
-                    navController.navigate(Routes.videoOptions(encodedUri))
-                },
             )
         }
         composable(Routes.LIBRARY) {
@@ -208,18 +204,6 @@ private fun UpscalerNavHost(
             ResultScreen(
                 jobId = jobId,
                 onBack = { navController.popBackStack() },
-            )
-        }
-        composable(Routes.VIDEO_OPTIONS) { entry ->
-            val uri = entry.arguments?.getString(Routes.VIDEO_OPTIONS_ARG) ?: return@composable
-            VideoOptionsScreen(
-                encodedUri = uri,
-                onBack = { navController.popBackStack() },
-                onStart = { jobId ->
-                    navController.navigate(Routes.processing(jobId)) {
-                        popUpTo(Routes.VIDEO_OPTIONS) { inclusive = true }
-                    }
-                },
             )
         }
     }

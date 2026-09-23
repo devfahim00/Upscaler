@@ -31,8 +31,7 @@ import javax.inject.Singleton
  *   inference -> body copy into the output buffer -> encode PNG/JPEG/WEBP
  *   -> thumbnail for the Library grid.
  *
- * The tile loop lives in [upscaleArgb] and is shared with the video engine
- * and the "preview upscaled frame" feature.
+ * The tile loop lives in [upscaleArgb].
  */
 @Singleton
 class PhotoUpscaleProcessor @Inject constructor(
@@ -95,7 +94,10 @@ class PhotoUpscaleProcessor @Inject constructor(
             if (work != source) source.recycle()
         }
 
-        val outBitmap = upscaleBitmap(work, job.model, decision, inferenceDispatcher, onProgress)
+        val outBitmap = upscaleBitmap(
+            work, job.model, decision, inferenceDispatcher, onProgress,
+            wdnAlpha = if (job.model.supportsWdnInterpolation) job.wdnAlpha else 0f,
+        )
 
         val plan = planUpscale(
             width = work.width,
@@ -146,7 +148,6 @@ class PhotoUpscaleProcessor @Inject constructor(
 
     /**
      * Upscales a whole bitmap through the model at its native scale.
-     * Used for photos and for video "quality preview" frames.
      */
     suspend fun upscaleBitmap(
         source: Bitmap,
@@ -155,16 +156,16 @@ class PhotoUpscaleProcessor @Inject constructor(
         inferenceDispatcher: CoroutineDispatcher,
         onProgress: suspend (percent: Int) -> Unit = {},
         tileSize: Int? = null,
+        wdnAlpha: Float = 0f,
     ): Bitmap {
         val argb = IntArray(source.width * source.height)
         source.getPixels(argb, 0, source.width, 0, 0, source.width, source.height)
-        val out = upscaleArgb(argb, source.width, source.height, model, decision, inferenceDispatcher, onProgress, tileSize)
+        val out = upscaleArgb(argb, source.width, source.height, model, decision, inferenceDispatcher, onProgress, tileSize, wdnAlpha)
         return Bitmap.createBitmap(out, source.width * model.nativeScale, source.height * model.nativeScale, Bitmap.Config.ARGB_8888)
     }
 
     /**
      * Core tile loop: ARGB in (w x h) -> ARGB out (w*nativeScale x h*nativeScale).
-     * Shared by the photo pipeline, the video pipeline and frame previews.
      */
     internal suspend fun upscaleArgb(
         argb: IntArray,
@@ -175,6 +176,7 @@ class PhotoUpscaleProcessor @Inject constructor(
         inferenceDispatcher: CoroutineDispatcher,
         onProgress: suspend (percent: Int) -> Unit = {},
         tileSizeOverride: Int? = null,
+        wdnAlpha: Float = 0f,
     ): IntArray = withContext(inferenceDispatcher) {
         val threads = Runtime.getRuntime().availableProcessors().coerceIn(2, 8)
         val plan = planUpscale(
@@ -183,12 +185,12 @@ class PhotoUpscaleProcessor @Inject constructor(
             requestedScale = model.nativeScale,
             nativeModelScale = model.nativeScale,
             backendUsesGpu = decision.backend == BackendMode.GPU,
-            tileSizeOverride = tileSizeOverride,
+            tileSizeOverride = tileSizeOverride ?: model.tileSizeFor(decision.backend == BackendMode.GPU),
         )
         val outW = w * model.nativeScale
         val outH = h * model.nativeScale
         val out = IntArray(outW * outH)
-        val handle = engine.createSession(model, decision.backend, threads)
+        val handle = engine.createSession(model, decision.backend, threads, wdnAlpha)
         try {
             check(handle != 0L) { "The model could not be loaded (backend ${decision.backend})." }
             val tileBuf = IntArray(plan.tiles.maxOf { it.inW * it.inH })

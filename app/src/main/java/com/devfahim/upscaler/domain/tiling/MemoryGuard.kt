@@ -68,7 +68,7 @@ object MemoryGuard {
      * directions) is always allocated in full before any later downscale to
      * the requested resolution - it's the single biggest allocation in the
      * pipeline, and the one [effectiveScale] alone doesn't bound, since that
-     * only caps the *final* output. Large photos or video frames run
+     * only caps the *final* output. Large photos run
      * through a x4 model can demand a 500MB+ buffer here and OOM. Callers
      * should resample their source to the returned size before upscaling.
      */

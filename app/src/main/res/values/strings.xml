@@ -21,22 +21,19 @@
     <string name="action_share">Share</string>
 
     <!-- Onboarding -->
-    <string name="onboarding_1_title">Sharper photos &amp; videos</string>
-    <string name="onboarding_1_body">Upscale images up to 4x and enhance videos right on your phone with a compact neural network built for speed.</string>
+    <string name="onboarding_1_title">Sharper photos</string>
+    <string name="onboarding_1_body">Upscale images up to 4x right on your phone - from a fast compact network to the full RealESRGAN_x4plus high-quality model, there is a speed/quality option for every device.</string>
     <string name="onboarding_2_title">100% offline</string>
-    <string name="onboarding_2_body">Everything runs on your device. Your photos and videos never leave your phone - the app doesn\'t even request internet access.</string>
+    <string name="onboarding_2_body">Everything runs on your device. Your photos never leave your phone - the app doesn\'t even request internet access.</string>
     <string name="onboarding_3_title">Pick, enhance, compare</string>
-    <string name="onboarding_3_body">Choose a model for photos, anime or noisy images, then compare the result with a draggable before/after slider. Your library keeps every result.</string>
+    <string name="onboarding_3_body">Choose a model, dial in denoise strength for compressed photos, then compare the result with a draggable before/after slider. Your library keeps every result.</string>
 
     <!-- Home -->
     <string name="home_upscale_photo">Upscale Photo</string>
     <string name="home_upscale_photo_sub">Images up to 4x sharper</string>
-    <string name="home_upscale_video">Upscale Video</string>
-    <string name="home_upscale_video_sub">Frame-by-frame enhancement</string>
     <string name="home_recent">Recent</string>
-    <string name="home_offline_banner">100% offline - your photos and videos never leave this device.</string>
+    <string name="home_offline_banner">100% offline - your photos never leave this device.</string>
     <string name="kind_photo">Photo</string>
-    <string name="kind_video">Video</string>
 
     <!-- Options -->
     <string name="options_title">Enhance photo</string>
@@ -45,44 +42,25 @@
     <string name="options_scale">Scale</string>
     <string name="options_format">Output format</string>
     <string name="options_quality">Quality: %1$d%%</string>
-    <string name="options_cap">Limit output resolution</string>
     <string name="model_general_photo_x4_name">Photo x4 (default)</string>
     <string name="model_general_photo_x4_desc">Real-ESRGAN general model. Best balance for real photos.</string>
+    <string name="model_hq_photo_x4_name">Photo x4 (High Quality)</string>
+    <string name="model_hq_photo_x4_desc">Full RealESRGAN_x4plus network. Recovers real texture and fine detail - but much slower.</string>
     <string name="model_general_photo_x2_name">Photo x2 (fast)</string>
     <string name="model_general_photo_x2_desc">Faster 2x pass for previews and low-end devices.</string>
     <string name="model_anime_x4_name">Anime / Illustration x4</string>
     <string name="model_anime_x4_desc">Sharper lines and flat colors. Great for drawings and logos.</string>
-    <string name="model_denoise_x4_name">Denoise x4</string>
-    <string name="model_denoise_x4_desc">For old compressed photos, screenshots and noisy images.</string>
-    <string name="model_video_x2_name">Video x2 (balanced)</string>
-    <string name="model_video_x2_desc">2x per-frame upscaling optimized for speed.</string>
-    <string name="model_video_x4_name">Video x4 (max quality)</string>
-    <string name="model_video_x4_desc">4x per-frame upscaling. Slower, highest detail.</string>
     <string name="model_standin_note">(closest available compact weight - swappable)</string>
     <string name="format_png">PNG</string>
     <string name="format_jpeg">JPEG</string>
     <string name="format_webp">WEBP</string>
-    <string name="cap_none">No limit</string>
-    <string name="cap_1080p">Max 1080p</string>
-    <string name="cap_2160p">Max 4K</string>
 
-    <!-- Video options -->
-    <string name="video_options_title">Upscale video</string>
-    <string name="video_metadata_title">Source</string>
-    <string name="video_metadata_dims">%1$d × %2$d</string>
-    <string name="video_metadata_fps">%1$.1f fps</string>
-    <string name="video_metadata_duration">%1$d s</string>
-    <string name="video_metadata_audio_yes">Audio: yes (copied untouched)</string>
-    <string name="video_metadata_audio_no">Audio: none</string>
-    <string name="video_metadata_loading">Reading video info…</string>
-    <string name="video_est_time">Estimated time: about %1$d m %2$d s</string>
-    <string name="video_preview">Preview 2 frames</string>
-    <string name="video_preview_hint">Preview frames upscaled with the selected model</string>
-    <string name="video_start">Start processing</string>
+    <!-- WDN interpolation -->
+    <string name="options_wdn_title">Denoise strength: %1$d%%</string>
+    <string name="options_wdn_hint">Blends the photo model with its denoise-trained WDN twin. 0% keeps the most texture; higher values remove more noise but look smoother.</string>
 
     <!-- Processing -->
     <string name="processing_photo_title">Upscaling photo</string>
-    <string name="processing_video_title">Upscaling video</string>
     <string name="processing_preparing">Preparing…</string>
     <string name="processing_queued">Queued</string>
     <string name="processing_running">%1$d%% complete</string>
@@ -100,11 +78,8 @@
     <string name="delete_confirm_text">The result file and its library entry will be removed.</string>
 
     <!-- Library -->
-    <string name="filter_all">All</string>
-    <string name="filter_photos">Photos</string>
-    <string name="filter_videos">Videos</string>
     <string name="library_empty_title">Nothing here yet</string>
-    <string name="library_empty_sub">Photos and videos you upscale will appear here.</string>
+    <string name="library_empty_sub">Photos you upscale will appear here.</string>
     <string name="status_queued">Queued</string>
     <string name="status_running">Running</string>
     <string name="status_completed">Done</string>
@@ -138,19 +113,15 @@
 
     <!-- Notifications -->
     <string name="channel_processing">Processing</string>
-    <string name="channel_processing_desc">Shows progress while photos and videos are being upscaled.</string>
+    <string name="channel_processing_desc">Shows progress while photos are being upscaled.</string>
     <string name="notif_photo_processing_title">Upscaling photo</string>
-    <string name="notif_video_processing_title">Upscaling video</string>
     <string name="notif_processing_desc">You can close the app; processing continues.</string>
-    <string name="notif_video_progress">%1$d / %2$d frames</string>
-    <string name="eta_minutes"> · %1$d m %2$d s left</string>
-    <string name="eta_seconds"> · %1$d s left</string>
 
     <!-- About -->
     <string name="about_version">Version %1$s</string>
     <string name="about_offline">No internet permission - fully offline</string>
     <string name="about_how_title">How it works</string>
-    <string name="about_how_body">A compact super-resolution network (the SRVGGNetCompact family used by Real-ESRGAN\'s fast models) runs locally through Tencent\'s ncnn inference engine, using the phone\'s GPU when possible. Large images are processed in overlapping tiles so memory stays safe, and videos are enhanced frame by frame while the audio is copied through untouched.</string>
+    <string name="about_how_body">Super-resolution networks from Real-ESRGAN run locally through Tencent\'s ncnn inference engine, using the phone\'s GPU when possible. The compact models breeze through photos on any device, the optional High Quality model (full RealESRGAN_x4plus RRDBNet) recovers more real texture, and the denoise slider blends in a WDN-trained twin weight for noisy sources. Large images are processed in overlapping tiles so memory stays safe.</string>
     <string name="about_credits_title">Open-source credits</string>
     <string name="about_credits_ncnn">Inference: ncnn by Tencent (BSD 3-Clause) - https://github.com/Tencent/ncnn</string>
     <string name="about_credits_realesrgan">Models: Real-ESRGAN by Xinntao et al. (BSD 3-Clause) - https://github.com/xinntao/Real-ESRGAN</string>

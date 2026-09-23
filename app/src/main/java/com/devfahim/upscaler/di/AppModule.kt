@@ -12,7 +12,6 @@ import com.devfahim.upscaler.data.storage.StorageManager
 import com.devfahim.upscaler.domain.repository.InferenceEngine
 import com.devfahim.upscaler.domain.repository.JobsRepository
 import com.devfahim.upscaler.domain.repository.SettingsRepository
-import com.devfahim.upscaler.domain.repository.VideoMetadataReader
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -89,7 +88,6 @@ object AppModule {
     @Singleton
     fun provideInferenceEngine(impl: NcnnInferenceEngine): InferenceEngine = impl
 
-    @Provides
-    @Singleton
-    fun provideVideoMetadataReader(impl: MediaIO): VideoMetadataReader = impl
+    // WdnInterpolator + ModelAssetManager are @Singleton classes with
+    // @Inject constructors - Hilt builds them without module entries.
 }

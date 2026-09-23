@@ -1,8 +1,8 @@
 package com.devfahim.upscaler.ui.screens.library
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,9 +12,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,17 +31,12 @@ import androidx.lifecycle.viewModelScope
 import coil.compose.AsyncImage
 import com.devfahim.upscaler.R
 import com.devfahim.upscaler.domain.model.JobStatus
-import com.devfahim.upscaler.domain.model.MediaKind
 import com.devfahim.upscaler.domain.model.UpscaleJob
 import com.devfahim.upscaler.domain.repository.JobsRepository
 import com.devfahim.upscaler.ui.components.EmptyState
-import com.devfahim.upscaler.ui.components.ShimmerPlaceholder
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.File
@@ -54,24 +47,9 @@ class LibraryViewModel @Inject constructor(
     private val jobsRepository: JobsRepository,
 ) : ViewModel() {
 
-    enum class Filter { ALL, PHOTOS, VIDEOS }
-
-    private val filter = MutableStateFlow(Filter.ALL)
-
     val jobs: StateFlow<List<UpscaleJob>> =
-        combine(jobsRepository.observeJobs(), filter) { list, f ->
-            when (f) {
-                Filter.ALL -> list
-                Filter.PHOTOS -> list.filter { it.kind == MediaKind.PHOTO }
-                Filter.VIDEOS -> list.filter { it.kind == MediaKind.VIDEO }
-            }
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    val currentFilter: StateFlow<Filter> = filter.asStateFlow()
-
-    fun setFilter(f: Filter) {
-        filter.value = f
-    }
+        jobsRepository.observeJobs()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     fun delete(job: UpscaleJob) {
         viewModelScope.launch {
@@ -89,35 +67,9 @@ fun LibraryScreen(
     viewModel: LibraryViewModel = hiltViewModel(),
 ) {
     val jobs by viewModel.jobs.collectAsStateWithLifecycle()
-    val filter by viewModel.currentFilter.collectAsStateWithLifecycle()
 
     Column(Modifier.fillMaxSize()) {
         TopAppBar(title = { Text(stringResource(R.string.nav_library)) })
-
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            LibraryViewModel.Filter.entries.forEach { f ->
-                FilterChip(
-                    selected = filter == f,
-                    onClick = { viewModel.setFilter(f) },
-                    label = {
-                        Text(
-                            stringResource(
-                                when (f) {
-                                    LibraryViewModel.Filter.ALL -> R.string.filter_all
-                                    LibraryViewModel.Filter.PHOTOS -> R.string.filter_photos
-                                    LibraryViewModel.Filter.VIDEOS -> R.string.filter_videos
-                                }
-                            )
-                        )
-                    },
-                )
-            }
-        }
 
         if (jobs.isEmpty()) {
             EmptyState(
@@ -169,16 +121,6 @@ private fun LibraryCell(job: UpscaleJob, onClick: () -> Unit, onDelete: () -> Un
                     Icons.Filled.Delete,
                     contentDescription = stringResource(R.string.action_delete),
                     tint = androidx.compose.ui.graphics.Color.White,
-                )
-            }
-            if (job.kind == MediaKind.VIDEO) {
-                Icon(
-                    Icons.Filled.PlayArrow,
-                    contentDescription = stringResource(R.string.kind_video),
-                    tint = androidx.compose.ui.graphics.Color.White,
-                    modifier = Modifier
-                        .align(androidx.compose.ui.Alignment.BottomStart)
-                        .padding(6.dp),
                 )
             }
         }

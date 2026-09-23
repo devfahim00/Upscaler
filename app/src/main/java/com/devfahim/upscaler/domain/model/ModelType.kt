@@ -2,37 +2,70 @@ package com.devfahim.upscaler.domain.model
 
 import androidx.annotation.StringRes
 import com.devfahim.upscaler.R
+import com.devfahim.upscaler.domain.tiling.MemoryGuard
 
 /**
  * The bundled super-resolution models.
  *
- * All of them are SRVGGNetCompact-family networks (the compact architecture
- * used by Real-ESRGAN's "general" / "animevideov3" fast models) exported to
- * ncnn `.param` + `.bin` format. Files live in
- * `app/src/main/assets/models/<assetDir>/model.{param,bin}`.
+ * Files live in `app/src/main/assets/models/<assetDir>/model.{param,bin}`.
+ * Two families are shipped:
  *
- * `standInFor` documents where a listed use-case does not have a purpose
- * trained public weight yet and the closest available compact model is
- * bundled instead. Swapping in a purpose-trained weight later only requires
- * dropping new files into the asset folder - see README.md.
+ *  * SRVGGNetCompact exports (the compact architecture used by Real-ESRGAN's
+ *    "general" / "animevideov3" fast models) - these run smoothly on any
+ *    Android device and are the default choice.
+ *  * RealESRGAN_x4plus - the full RRDBNet "high quality" model. It recovers
+ *    noticeably more real texture than the compact models (which can look
+ *    over-smooth), at the cost of much longer processing. It runs with
+ *    smaller tiles so it stays inside the memory budget on low-RAM devices.
+ *
+ * `standInFor` documents where a listed use-case does not have a
+ * purpose-trained public weight yet and the closest available compact model
+ * is bundled instead. Swapping in a purpose-trained weight later only
+ * requires dropping new files into the asset folder - see README.md.
  */
 enum class ModelType(
     val assetDir: String,
     val nativeScale: Int,
-    val isVideoOptimized: Boolean,
-    @StringRes val displayNameRes: Int,
-    @StringRes val descriptionRes: Int,
+    val displayNameRes: Int,
+    val descriptionRes: Int,
+    /**
+     * True when a WDN companion weight (realesr-general-wdn-x4v3) exists for
+     * this model's architecture, enabling runtime weight interpolation
+     * between the detail-oriented base and the denoise-oriented WDN variant.
+     */
+    val supportsWdnInterpolation: Boolean = false,
+    /** Tile body edge (input px) when running this model on the CPU backend. */
+    val cpuTileSize: Int = MemoryGuard.CPU_TILE_SIZE,
+    /** Tile body edge (input px) when running this model on the GPU backend. */
+    val gpuTileSize: Int = MemoryGuard.GPU_TILE_SIZE,
     val standInFor: String? = null,
 ) {
     /**
      * Real-ESRGAN "general x4v3" - official compact model for real photos.
+     * Pairs with [supportsWdnInterpolation] so the user can dial in extra
+     * denoising (0% = most texture, 100% = smoothest).
      */
     GENERAL_PHOTO_X4(
         assetDir = "realesr-general-x4v3",
         nativeScale = 4,
-        isVideoOptimized = false,
         displayNameRes = R.string.model_general_photo_x4_name,
         descriptionRes = R.string.model_general_photo_x4_desc,
+        supportsWdnInterpolation = true,
+    ),
+
+    /**
+     * RealESRGAN_x4plus - the original full-size RRDBNet model. Optional
+     * "High Quality" mode: recovers real texture and fine detail the compact
+     * models smooth away, but is much slower. Small tiles keep the working
+     * set (~200 MB peak on GPU, less on CPU) safe on low-RAM devices.
+     */
+    HQ_PHOTO_X4(
+        assetDir = "RealESRGAN_x4plus",
+        nativeScale = 4,
+        displayNameRes = R.string.model_hq_photo_x4_name,
+        descriptionRes = R.string.model_hq_photo_x4_desc,
+        cpuTileSize = HQ_CPU_TILE_SIZE,
+        gpuTileSize = HQ_GPU_TILE_SIZE,
     ),
 
     /**
@@ -42,7 +75,6 @@ enum class ModelType(
     GENERAL_PHOTO_X2(
         assetDir = "realesr-animevideov3-x2",
         nativeScale = 2,
-        isVideoOptimized = false,
         displayNameRes = R.string.model_general_photo_x2_name,
         descriptionRes = R.string.model_general_photo_x2_desc,
         standInFor = "realesr-general-x2v3 (not yet published)",
@@ -55,55 +87,34 @@ enum class ModelType(
     ANIME_ILLUSTRATION_X4(
         assetDir = "realesr-animevideov3-x4",
         nativeScale = 4,
-        isVideoOptimized = false,
         displayNameRes = R.string.model_anime_x4_name,
         descriptionRes = R.string.model_anime_x4_desc,
-    ),
-
-    /**
-     * STAND-IN: a dedicated "denoise" compact weight is not published as an
-     * ncnn export; the official general x4v3 model already removes mild JPEG
-     * artifacts and is used here until a stronger denoise weight is trained
-     * and converted.
-     */
-    DENOISE_X4(
-        assetDir = "realesr-general-x4v3",
-        nativeScale = 4,
-        isVideoOptimized = false,
-        displayNameRes = R.string.model_denoise_x4_name,
-        descriptionRes = R.string.model_denoise_x4_desc,
-        standInFor = "realesr-denoise-x4 (not yet published)",
-    ),
-
-    /**
-     * Real-ESRGAN animevideov3 x2 - trained for per-frame video upscaling.
-     */
-    VIDEO_X2(
-        assetDir = "realesr-animevideov3-x2",
-        nativeScale = 2,
-        isVideoOptimized = true,
-        displayNameRes = R.string.model_video_x2_name,
-        descriptionRes = R.string.model_video_x2_desc,
-    ),
-
-    /**
-     * Real-ESRGAN animevideov3 x4 - trained for per-frame video upscaling.
-     */
-    VIDEO_X4(
-        assetDir = "realesr-animevideov3-x4",
-        nativeScale = 4,
-        isVideoOptimized = true,
-        displayNameRes = R.string.model_video_x4_name,
-        descriptionRes = R.string.model_video_x4_desc,
     );
+
+    /** Tile body edge for this model on the given backend. */
+    fun tileSizeFor(backendUsesGpu: Boolean): Int =
+        if (backendUsesGpu) gpuTileSize else cpuTileSize
 
     companion object {
         /** Models offered when upscaling photos. */
         val photoModels: List<ModelType> =
-            listOf(GENERAL_PHOTO_X4, GENERAL_PHOTO_X2, ANIME_ILLUSTRATION_X4, DENOISE_X4)
+            listOf(GENERAL_PHOTO_X4, HQ_PHOTO_X4, GENERAL_PHOTO_X2, ANIME_ILLUSTRATION_X4)
 
-        /** Models offered when upscaling videos. */
-        val videoModels: List<ModelType> = listOf(VIDEO_X2, VIDEO_X4)
+        /**
+         * Asset dir of the WDN companion weight for [GENERAL_PHOTO_X4]
+         * (realesr-general-wdn-x4v3, same architecture). Not user-selectable
+         * as its own model - it is reached through the denoise-strength
+         * slider, which blends it with the base model at runtime.
+         */
+        const val WDN_ASSET_DIR: String = "realesr-general-wdn-x4v3"
+
+        /**
+         * RRDBNet keeps ~140 feature maps alive per tile (dense blocks +
+         * per-block outputs), so it needs much smaller tiles than the
+         * compact SRVGG networks to stay inside a low-RAM budget.
+         */
+        const val HQ_CPU_TILE_SIZE: Int = 64
+        const val HQ_GPU_TILE_SIZE: Int = 96
     }
 }
 

@@ -2,7 +2,6 @@ package com.devfahim.upscaler.data.repository
 
 import com.devfahim.upscaler.data.db.JobEntity
 import com.devfahim.upscaler.domain.model.JobStatus
-import com.devfahim.upscaler.domain.model.MediaKind
 import com.devfahim.upscaler.domain.model.ModelType
 import com.devfahim.upscaler.domain.model.OutputFormat
 import com.devfahim.upscaler.domain.model.UpscaleJob
@@ -105,13 +104,12 @@ class JobsRepositoryImpl @Inject constructor(
 
 internal fun JobEntity.toDomain(): UpscaleJob = UpscaleJob(
     id = id,
-    kind = runCatching { MediaKind.valueOf(kind) }.getOrDefault(MediaKind.PHOTO),
     status = runCatching { JobStatus.valueOf(status) }.getOrDefault(JobStatus.FAILED),
     model = runCatching { ModelType.valueOf(modelKey) }.getOrDefault(ModelType.GENERAL_PHOTO_X4),
     requestedScale = requestedScale,
     format = runCatching { OutputFormat.valueOf(format) }.getOrDefault(OutputFormat.PNG),
+    wdnAlpha = wdnAlpha,
     inputUri = inputUri,
-    capMaxHeight = capMaxHeight,
     resultPath = resultPath,
     savedUri = savedUri,
     thumbnailPath = thumbnailPath,
@@ -123,20 +121,18 @@ internal fun JobEntity.toDomain(): UpscaleJob = UpscaleJob(
     outWidth = outWidth,
     outHeight = outHeight,
     processingDurationMs = processingDurationMs,
-    sourceDurationMs = sourceDurationMs,
     errorMessage = errorMessage,
     title = title,
 )
 
 internal fun UpscaleJob.toEntity(): JobEntity = JobEntity(
     id = id,
-    kind = kind.name,
     status = status.name,
     modelKey = model.name,
     requestedScale = requestedScale,
     format = format.name,
+    wdnAlpha = wdnAlpha,
     inputUri = inputUri,
-    capMaxHeight = capMaxHeight,
     resultPath = resultPath,
     savedUri = savedUri,
     thumbnailPath = thumbnailPath,
@@ -148,7 +144,6 @@ internal fun UpscaleJob.toEntity(): JobEntity = JobEntity(
     outWidth = outWidth,
     outHeight = outHeight,
     processingDurationMs = processingDurationMs,
-    sourceDurationMs = sourceDurationMs,
     errorMessage = errorMessage,
     title = title,
 )

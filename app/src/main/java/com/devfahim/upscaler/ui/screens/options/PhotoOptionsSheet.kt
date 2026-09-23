@@ -31,7 +31,8 @@ import com.devfahim.upscaler.domain.model.ScaleOption
 
 /**
  * Bottom sheet shown right after picking photos (the "fast path"):
- * model, scale, output format + JPEG/WEBP quality.
+ * model, scale, WDN denoise strength (photo x4 model), output format +
+ * JPEG/WEBP quality.
  */
 @Composable
 fun PhotoOptionsSheet(
@@ -39,12 +40,13 @@ fun PhotoOptionsSheet(
     defaultModel: ModelType,
     defaultScale: ScaleOption,
     defaultFormat: OutputFormat,
-    onProcess: (ModelType, ScaleOption, OutputFormat) -> Unit,
+    onProcess: (ModelType, ScaleOption, OutputFormat, Float) -> Unit,
 ) {
     var model by remember { mutableStateOf(defaultModel) }
     var scale by remember { mutableStateOf(defaultScale) }
     var format by remember { mutableStateOf(defaultFormat) }
     var quality by remember { mutableFloatStateOf(92f) }
+    var wdnAlpha by remember { mutableFloatStateOf(0f) }
 
     Column(
         Modifier
@@ -95,6 +97,22 @@ fun PhotoOptionsSheet(
             }
         }
 
+        // ---- WDN interpolation (photo x4 only) ----
+        if (model.supportsWdnInterpolation) {
+            SectionLabel(stringResource(R.string.options_wdn_title, (wdnAlpha * 100).toInt()))
+            Text(
+                stringResource(R.string.options_wdn_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Slider(
+                value = wdnAlpha,
+                onValueChange = { wdnAlpha = it },
+                valueRange = 0f..1f,
+                steps = 9, // 10% steps, matching the cached interpolation models
+            )
+        }
+
         // ---- Format ----
         SectionLabel(stringResource(R.string.options_format))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -119,7 +137,7 @@ fun PhotoOptionsSheet(
 
         Spacer(Modifier.height(4.dp))
         Button(
-            onClick = { onProcess(model, scale, format) },
+            onClick = { onProcess(model, scale, format, wdnAlpha) },
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text(stringResource(R.string.action_process))

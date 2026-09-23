@@ -27,37 +27,27 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.devfahim.upscaler.R
 import com.devfahim.upscaler.domain.model.JobStatus
-import com.devfahim.upscaler.domain.model.MediaKind
 import com.devfahim.upscaler.domain.model.UpscaleJob
 import com.devfahim.upscaler.domain.repository.JobsRepository
-import com.devfahim.upscaler.processing.JobController
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ProcessingViewModel @Inject constructor(
     private val jobsRepository: JobsRepository,
-    private val jobController: JobController,
 ) : ViewModel() {
 
-    private var boundJobId: String? = null
     private var boundFlow: StateFlow<UpscaleJob?>? = null
 
     fun bind(jobId: String): StateFlow<UpscaleJob?> {
-        boundJobId = jobId
         if (boundFlow == null) {
             boundFlow = jobsRepository.observeJob(jobId)
                 .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
         }
         return boundFlow!!
-    }
-
-    fun cancelVideo(jobId: String) {
-        jobController.cancelVideoJob(jobId)
     }
 }
 
@@ -87,7 +77,6 @@ fun ProcessingScreen(
         Text(
             text = when {
                 j == null -> stringResource(R.string.processing_preparing)
-                j.kind == MediaKind.VIDEO -> stringResource(R.string.processing_video_title)
                 else -> stringResource(R.string.processing_photo_title)
             },
             style = MaterialTheme.typography.headlineSmall,
@@ -110,12 +99,7 @@ fun ProcessingScreen(
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(Modifier.height(32.dp))
-        OutlinedButton(onClick = {
-            if (j?.kind == MediaKind.VIDEO) {
-                viewModel.cancelVideo(jobId)
-            }
-            onCancel()
-        }) {
+        OutlinedButton(onClick = onCancel) {
             Text(stringResource(R.string.action_cancel))
         }
     }

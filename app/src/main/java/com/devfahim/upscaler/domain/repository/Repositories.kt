@@ -3,7 +3,6 @@ package com.devfahim.upscaler.domain.repository
 import com.devfahim.upscaler.domain.model.BackendMode
 import com.devfahim.upscaler.domain.model.BackendPreference
 import com.devfahim.upscaler.domain.model.JobStatus
-import com.devfahim.upscaler.domain.model.MediaKind
 import com.devfahim.upscaler.domain.model.ModelType
 import com.devfahim.upscaler.domain.model.OutputFormat
 import com.devfahim.upscaler.domain.model.ScaleOption
@@ -68,7 +67,15 @@ data class EngineCapabilities(
 /** Abstraction over the ncnn JNI bridge (fakeable in unit tests). */
 interface InferenceEngine {
     fun capabilities(): EngineCapabilities
-    fun createSession(model: ModelType, backend: BackendMode, threads: Int): Long
+    /**
+     * Loads a model for inference.
+     *
+     * @param wdnAlpha WDN interpolation strength in [0, 1]; only meaningful
+     *        for models with [ModelType.supportsWdnInterpolation]. Values in
+     *        (0, 1) load the base model's architecture blended with its WDN
+     *        companion weight: out = (1 - alpha) * general + alpha * wdn.
+     */
+    fun createSession(model: ModelType, backend: BackendMode, threads: Int, wdnAlpha: Float = 0f): Long
     fun destroySession(handle: Long)
     /**
      * Runs one tile through the network.
@@ -76,19 +83,4 @@ interface InferenceEngine {
      */
     fun upscaleTile(handle: Long, argb: IntArray, width: Int, height: Int, nativeScale: Int): IntArray?
     fun benchmark(model: ModelType, backend: BackendMode, threads: Int, iterations: Int): Double
-}
-
-/** Reads video metadata without decoding frames. */
-data class VideoInfo(
-    val width: Int,
-    val height: Int,
-    val rotationDegrees: Int,
-    val fps: Float,
-    val durationMs: Long,
-    val hasAudio: Boolean,
-    val videoMime: String,
-)
-
-interface VideoMetadataReader {
-    fun read(uri: String): VideoInfo?
 }

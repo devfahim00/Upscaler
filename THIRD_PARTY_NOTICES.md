@@ -41,10 +41,12 @@ POSSIBILITY OF SUCH DAMAGE.
 ## Real-ESRGAN (model weights)
 
 * Project: https://github.com/xinntao/Real-ESRGAN
-* Weights: realesr-general-x4v3, realesr-animevideov3-x2/x4 converted to
-  ncnn `.param`/`.bin` format
+* Weights: realesr-general-x4v3, realesr-general-wdn-x4v3,
+  realesr-animevideov3-x2/x4, RealESRGAN_x4plus in ncnn `.param`/`.bin`
+  format
 * License: BSD 3-Clause
-* Use: super-resolution neural networks (SRVGGNetCompact architecture).
+* Use: super-resolution neural networks (SRVGGNetCompact architecture for
+  the compact models, RRDBNet for RealESRGAN_x4plus).
 
 BSD 3-Clause license text (Real-ESRGAN):
 

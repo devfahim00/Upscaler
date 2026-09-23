@@ -18,6 +18,7 @@ import javax.inject.Singleton
 @Singleton
 class NcnnInferenceEngine @Inject constructor(
     private val modelAssets: ModelAssetManager,
+    private val wdnInterpolator: WdnInterpolator,
 ) : InferenceEngine {
 
     private val gpuProbed = AtomicBoolean(false)
@@ -45,11 +46,22 @@ class NcnnInferenceEngine @Inject constructor(
         )
     }
 
-    override fun createSession(model: ModelType, backend: BackendMode, threads: Int): Long {
+    override fun createSession(
+        model: ModelType,
+        backend: BackendMode,
+        threads: Int,
+        wdnAlpha: Float,
+    ): Long {
         val dir = modelAssets.modelDir(model.assetDir)
+        // WDN interpolation: same .param (identical architecture), blended .bin.
+        val binPath = if (model.supportsWdnInterpolation && wdnAlpha > 0f) {
+            wdnInterpolator.binFor(wdnAlpha).absolutePath
+        } else {
+            dir.resolve("model.bin").absolutePath
+        }
         return EngineBridge.nativeCreateEngine(
             paramPath = dir.resolve("model.param").absolutePath,
-            binPath = dir.resolve("model.bin").absolutePath,
+            binPath = binPath,
             useGpu = backend == BackendMode.GPU,
             numThreads = threads,
         )

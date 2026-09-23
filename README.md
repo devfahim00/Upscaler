@@ -1,27 +1,32 @@
-# Upscaler — Offline AI Photo & Video Upscaler (Android)
+# Upscaler — Offline AI Photo Upscaler (Android)
 
 Native Android app (Kotlin + Jetpack Compose + Material 3) that upscales
-**photos and videos fully offline** on-device with compact super-resolution
-networks (**SRVGGNetCompact**, the family behind Real-ESRGAN's fast
-"general x4v3" / "animevideov3" models), running on
+**photos fully offline** on-device with super-resolution networks from
+Real-ESRGAN — the compact **SRVGGNetCompact** models ("general x4v3" /
+"animevideov3") for speed on any device, plus the full **RealESRGAN_x4plus**
+RRDBNet as an optional High Quality mode — running on
 [ncnn](https://github.com/Tencent/ncnn) with automatic
 **Vulkan GPU → multi-threaded CPU fallback**.
 
 > **100% offline by design** — the app does not even declare the
-> `INTERNET` permission. Your photos and videos never leave the device.
+> `INTERNET` permission. Your photos never leave the device.
 
 ## Highlights
 
-- **Photos**: pick one or many, choose model (photo / anime / denoise) and
-  2x/4x scale, batch queue via WorkManager, before/after **compare slider**,
+- **Photos**: pick one or many, choose model (photo / HQ / anime) and 2x/4x
+  scale, batch queue via WorkManager, before/after **compare slider**,
   pinch-zoom, save as PNG/JPEG/WEBP, share sheet, auto-tiling for big images.
-- **Videos**: frame-extract → upscale → re-encode pipeline
-  (MediaCodec/MediaExtractor/MediaMuxer, no FFmpeg), foreground service with
-  progress + cancel notification, **untouched audio passthrough**,
-  resolution cap (1080p / 4K), and a **2-frame quality preview** before you
-  commit to a long job.
-- **Library**: every job persisted in Room; grid of thumbnails, filters,
-  delete, re-open with compare.
+- **WDN denoise interpolation**: the photo x4 model has a denoise-trained
+  twin weight (realesr-general-wdn-x4v3, identical architecture). The
+  *Denoise strength* slider blends the two networks' weights at runtime —
+  0% keeps the most texture, higher values remove more noise but look
+  smoother. Blended weights are cached per strength step.
+- **High Quality mode**: full RealESRGAN_x4plus (RRDBNet, 23 blocks) recovers
+  real texture and fine detail the compact models smooth away. It runs with
+  smaller tiles (64 CPU / 96 GPU) so it stays memory-safe even on low-RAM
+  devices — at the cost of much longer processing times.
+- **Library**: every job persisted in Room; grid of thumbnails, delete,
+  re-open with compare.
 - **Settings**: default model/scale/format/quality, backend override
   (Auto / Force GPU / Force CPU) with a real on-device **benchmark**,
   theme (System/Light/Dark + Material You dynamic color on Android 12+),
@@ -36,7 +41,6 @@ networks (**SRVGGNetCompact**, the family behind Real-ESRGAN's fast
 | DI | Hilt (+ `hilt-work`, `hilt-navigation-compose`) |
 | Async | Coroutines & Flow; inference pinned to a dedicated single-thread dispatcher |
 | Inference | ncnn (vendored prebuilt, Vulkan + ARM NEON CPU) via a thin JNI bridge (`app/src/main/cpp/ncnn_jni.cpp`) |
-| Video I/O | `MediaCodec` + `MediaExtractor` + `MediaMuxer` (H.264 out, audio copied untouched) |
 | Storage | Scoped-storage compliant `MediaStore` saves; Room history; DataStore prefs |
 | Min / target SDK | 26 / 34 |
 
@@ -62,8 +66,9 @@ Large images are processed in **overlapping tiles** so memory stays bounded
 (no OOM on a 12 MP photo):
 
 1. `TilePlanner` (pure Kotlin, unit-tested) splits the image into tile
-   *bodies* of `tileSize` (128 CPU / 256 GPU for photos, 256/512 for video)
-   that **exactly partition** the output.
+   *bodies* of `tileSize` (128 CPU / 256 GPU for the compact models; the
+   RRDBNet High Quality model uses 64/96 because it keeps ~140 feature maps
+   alive per tile) that **exactly partition** the output.
 2. Each tile's input patch is the body expanded by `overlap` (16 px) of
    context on every side, clamped to the image bounds — the same scheme as
    the reference Real-ESRGAN ncnn implementation. The extra context lets the
@@ -76,6 +81,24 @@ Large images are processed in **overlapping tiles** so memory stays bounded
 When the requested scale is **below** the model's native scale (e.g. 2x with
 the x4 photo model), the input is pre-shrunk so the native output equals the
 requested output — bounded memory and faster than native-pass + downscale.
+
+## How WDN interpolation works
+
+`realesr-general-x4v3` (detail-oriented) and `realesr-general-wdn-x4v3`
+(denoise-oriented) share the exact same SRVGGNetCompact architecture, so
+their weights can be blended linearly:
+
+```
+out = (1 - alpha) * general + alpha * wdn
+```
+
+`WdnBlend` (pure Kotlin, unit-tested) parses the model's `.param` file to
+learn the weight-blob layout (ncnn stores conv weights as tag-prefixed
+fp16 and conv biases / PReLU slopes as raw fp32 — see the doc comment for
+the exact format), blends the two `.bin` files blob-by-blob in float32, and
+re-encodes them. `WdnInterpolator` caches the blended file per strength step
+(10% increments) under `filesDir/wdn-interp-v<N>/`. This mirrors the official
+Real-ESRGAN advice of trading off between the two models.
 
 ## How backend selection works
 
@@ -108,17 +131,17 @@ To add or swap a model:
 3. Drop the files into `assets/models/<new-name>/`.
 4. Add an entry to the `ModelType` enum
    (`app/src/main/java/com/devfahim/upscaler/domain/model/ModelType.kt`)
-   with its native scale and the photo/video lists it appears in.
+   with its native scale and tile sizes; add it to `photoModels`.
 
 ### Currently bundled
 
 | App entry | Asset dir | Actual weight | Note |
 |---|---|---|---|
-| Photo x4 (default) | `realesr-general-x4v3` | official Real-ESRGAN compact general | — |
+| Photo x4 (default) | `realesr-general-x4v3` | official Real-ESRGAN compact general | pairs with the WDN slider |
+| Photo x4 (High Quality) | `RealESRGAN_x4plus` | official full RRDBNet x4plus | much slower, most detail |
 | Photo x2 (fast) | `realesr-animevideov3-x2` | animevideov3 x2 | **stand-in** (no public general-x2 compact weight); flagged in UI |
 | Anime / Illustration x4 | `realesr-animevideov3-x4` | animevideov3 x4 | — |
-| Denoise x4 | `realesr-general-x4v3` | general x4v3 | **stand-in**; general v3 already removes mild JPEG artifacts |
-| Video x2 / x4 | `realesr-animevideov3-x2/x4` | animevideov3 | purpose-trained for per-frame video |
+| (WDN companion) | `realesr-general-wdn-x4v3` | official compact WDN twin | not user-selectable; reached via the denoise slider |
 
 ## Project layout
 
@@ -128,15 +151,15 @@ app/src/main/assets/models/  ncnn model weights
 ncnn-android/                vendored ncnn prebuilt (BSD-3, per ABI)
 domain/                      pure-Kotlin models, tiling, use cases
 data/                        Room, DataStore, MediaStore, engine wrappers
-processing/                  photo worker, video foreground service, codecs
+processing/                  photo worker + tiling pipeline
 ui/                          Compose screens (Material 3)
 ```
 
 ## Roadmap (not in v1)
 
-- Parallel frame processing for video (v1 is sequential per-frame)
-- Play Billing paywall gating 4K video export / batch size
 - True x2 general-photo weight when one is published
+- Optional runtime download of additional HQ weights (would require the
+  INTERNET permission; currently avoided by design)
 
 ## Licenses & attribution
 

@@ -66,8 +66,11 @@ class ModelAssetManager @Inject constructor(
         return dir
     }
 
-    private companion object {
-        /** Bump when shipping new/updated weight files. */
-        const val VERSION = 1
+    companion object {
+        /**
+         * Bump when shipping new/updated weight files. Also used by
+         * [WdnInterpolator] to key its interpolated-weight cache.
+         */
+        const val VERSION = 2
     }
 }

@@ -34,39 +34,31 @@ enum class OutputFormat(
     WEBP("image/webp", "webp", true, R.string.format_webp),
 }
 
-/** Kind of media being upscaled. */
-enum class MediaKind {
-    PHOTO, VIDEO;
-}
-
-/** User-selectable cap on the video output *display* height. */
-enum class VideoCapOption(val maxHeight: Int, val labelRes: Int) {
-    NONE(0, R.string.cap_none),
-    P1080(1080, R.string.cap_1080p),
-    P2160(2160, R.string.cap_2160p),
-}
-
 /** Lifecycle of an upscale job (persisted in Room). */
 enum class JobStatus {
     QUEUED, RUNNING, COMPLETED, FAILED, CANCELLED;
 }
 
 /**
- * A single upscale job - one photo or one video. Persisted in Room so that
- * jobs survive process death; the Library screen is built on top of this.
+ * A single photo upscale job. Persisted in Room so that jobs survive process
+ * death; the Library screen is built on top of this.
  */
 data class UpscaleJob(
     val id: String,
-    val kind: MediaKind,
     val status: JobStatus,
     val model: ModelType,
     val requestedScale: Int,
     val format: OutputFormat,
+    /**
+     * WDN interpolation strength for [ModelType.GENERAL_PHOTO_X4]:
+     * 0 = pure realesr-general-x4v3 (most texture), 1 = pure
+     * realesr-general-wdn-x4v3 (strongest denoise / smoothest).
+     * Ignored by models without [ModelType.supportsWdnInterpolation].
+     */
+    val wdnAlpha: Float = 0f,
     /** Original content Uri (as string). */
     val inputUri: String,
-    /** Cap on the output display height for videos (0 = uncapped). */
-    val capMaxHeight: Int = 0,
-    /** App-private result file (filesDir/results/<id>.<ext|mp4>). */
+    /** App-private result file (filesDir/results/<id>.<ext>). */
     val resultPath: String? = null,
     /** MediaStore Uri after the user taps "Save to Gallery" (nullable until then). */
     val savedUri: String? = null,
@@ -80,7 +72,6 @@ data class UpscaleJob(
     val outWidth: Int = 0,
     val outHeight: Int = 0,
     val processingDurationMs: Long = 0,
-    val sourceDurationMs: Long = 0, // videos only
     val errorMessage: String? = null,
     val title: String = "",
 )

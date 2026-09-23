@@ -14,13 +14,13 @@ import kotlinx.coroutines.flow.Flow
 @Entity(tableName = "jobs")
 data class JobEntity(
     @PrimaryKey val id: String,
-    val kind: String,           // MediaKind.name
     val status: String,         // JobStatus.name
     val modelKey: String,       // ModelType.name
     val requestedScale: Int,
     val format: String,         // OutputFormat.name
+    /** WDN interpolation strength in [0,1]; 0 for non-interpolated models. */
+    val wdnAlpha: Float,
     val inputUri: String,
-    val capMaxHeight: Int,
     val resultPath: String?,
     val savedUri: String?,
     val thumbnailPath: String?,
@@ -32,7 +32,6 @@ data class JobEntity(
     val outWidth: Int,
     val outHeight: Int,
     val processingDurationMs: Long,
-    val sourceDurationMs: Long,
     val errorMessage: String?,
     val title: String,
 )
@@ -73,7 +72,12 @@ interface JobDao {
     suspend fun failActive(message: String, now: Long)
 }
 
-@Database(entities = [JobEntity::class], version = 1, exportSchema = false)
+/**
+ * v2 (photo-only): dropped the video-only columns (kind / capMaxHeight /
+ * sourceDurationMs) and added wdnAlpha. The app uses destructive migration,
+ * so upgrading from v1 resets the job history.
+ */
+@Database(entities = [JobEntity::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun jobDao(): JobDao
 }

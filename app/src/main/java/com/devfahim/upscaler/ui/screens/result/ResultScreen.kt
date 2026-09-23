@@ -49,7 +49,6 @@ import androidx.lifecycle.viewModelScope
 import com.devfahim.upscaler.R
 import com.devfahim.upscaler.data.storage.StorageManager
 import com.devfahim.upscaler.domain.model.JobStatus
-import com.devfahim.upscaler.domain.model.MediaKind
 import com.devfahim.upscaler.domain.model.UpscaleJob
 import com.devfahim.upscaler.domain.repository.JobsRepository
 import com.devfahim.upscaler.ui.components.CompareSlider
@@ -96,9 +95,8 @@ class ResultViewModel @Inject constructor(
                 val uri = withContext(Dispatchers.IO) {
                     storage.saveToGallery(
                         file = File(path),
-                        kind = job.kind,
                         format = job.format,
-                        displayName = "upscaler_${job.id.take(8)}.${if (job.kind == MediaKind.VIDEO) "mp4" else job.format.fileExtension}",
+                        displayName = "upscaler_${job.id.take(8)}.${job.format.fileExtension}",
                     )
                 }
                 jobsRepository.markSaved(job.id, uri.toString())
@@ -194,10 +192,7 @@ private fun ActiveBody(job: UpscaleJob) {
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
-            stringResource(
-                if (job.kind == MediaKind.VIDEO) R.string.processing_video_title
-                else R.string.processing_photo_title
-            ),
+            stringResource(R.string.processing_photo_title),
             style = MaterialTheme.typography.headlineSmall,
         )
         Spacer(Modifier.height(16.dp))
@@ -318,7 +313,7 @@ private fun CompletedBody(job: UpscaleJob, viewModel: ResultViewModel) {
                         File(job.resultPath!!),
                     )
                     val send = Intent(Intent.ACTION_SEND).apply {
-                        type = if (job.kind == MediaKind.VIDEO) "video/mp4" else job.format.mimeType
+                        type = job.format.mimeType
                         putExtra(Intent.EXTRA_STREAM, uri)
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     }

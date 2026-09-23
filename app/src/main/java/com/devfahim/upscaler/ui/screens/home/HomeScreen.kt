@@ -51,7 +51,6 @@ import androidx.lifecycle.viewModelScope
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.devfahim.upscaler.R
-import com.devfahim.upscaler.domain.model.MediaKind
 import com.devfahim.upscaler.domain.model.ModelType
 import com.devfahim.upscaler.domain.model.OutputFormat
 import com.devfahim.upscaler.domain.model.ScaleOption
@@ -87,6 +86,7 @@ class HomeViewModel @Inject constructor(
         model: ModelType,
         scale: ScaleOption,
         format: OutputFormat,
+        wdnAlpha: Float,
         onFirstEnqueued: (String) -> Unit,
     ) {
         viewModelScope.launch {
@@ -99,6 +99,7 @@ class HomeViewModel @Inject constructor(
                     model = model,
                     scale = scale,
                     format = format,
+                    wdnAlpha = wdnAlpha,
                 )
                 if (firstId == null) firstId = id
             }
@@ -112,7 +113,6 @@ class HomeViewModel @Inject constructor(
 fun HomeScreen(
     onOpenJob: (String) -> Unit,
     onOpenLibrary: () -> Unit,
-    onOpenVideoOptions: (String) -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
@@ -138,17 +138,6 @@ fun HomeScreen(
         }
     }
 
-    val videoPicker = rememberLauncherForActivityResult(
-        ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        uri?.let {
-            if (Build.VERSION.SDK_INT >= 33) {
-                notifPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
-            onOpenVideoOptions(Uri.encode(it.toString()))
-        }
-    }
-
     Column(Modifier.fillMaxSize()) {
         TopAppBar(title = { Text(stringResource(R.string.app_name)) })
 
@@ -158,30 +147,17 @@ fun HomeScreen(
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                EntryCard(
-                    modifier = Modifier.weight(1f),
-                    iconRes = R.drawable.ic_photo,
-                    titleRes = R.string.home_upscale_photo,
-                    subtitleRes = R.string.home_upscale_photo_sub,
-                    onClick = {
-                        photoPicker.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                        )
-                    },
-                )
-                EntryCard(
-                    modifier = Modifier.weight(1f),
-                    iconRes = R.drawable.ic_movie,
-                    titleRes = R.string.home_upscale_video,
-                    subtitleRes = R.string.home_upscale_video_sub,
-                    onClick = {
-                        videoPicker.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly)
-                        )
-                    },
-                )
-            }
+            EntryCard(
+                modifier = Modifier.fillMaxWidth(),
+                iconRes = R.drawable.ic_photo,
+                titleRes = R.string.home_upscale_photo,
+                subtitleRes = R.string.home_upscale_photo_sub,
+                onClick = {
+                    photoPicker.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                },
+            )
 
             if (recent.isNotEmpty()) {
                 Text(
@@ -228,11 +204,11 @@ fun HomeScreen(
                 defaultModel = settings?.defaultPhotoModel ?: ModelType.GENERAL_PHOTO_X4,
                 defaultScale = settings?.defaultScale ?: ScaleOption.X4,
                 defaultFormat = settings?.outputFormat ?: OutputFormat.PNG,
-                onProcess = { model, scale, format ->
+                onProcess = { model, scale, format, wdnAlpha ->
                     optionsOpen = false
                     val uris = pickedPhotos
                     pickedPhotos = emptyList()
-                    viewModel.startPhotoJobs(uris, model, scale, format, onFirstEnqueued = onOpenJob)
+                    viewModel.startPhotoJobs(uris, model, scale, format, wdnAlpha, onFirstEnqueued = onOpenJob)
                 },
             )
         }
@@ -317,9 +293,7 @@ private fun RecentChip(job: UpscaleJob, onClick: () -> Unit) {
                     .height(96.dp),
             )
             Text(
-                text = if (job.kind == MediaKind.VIDEO)
-                    stringResource(R.string.kind_video)
-                else stringResource(R.string.kind_photo),
+                text = stringResource(R.string.kind_photo),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(8.dp),

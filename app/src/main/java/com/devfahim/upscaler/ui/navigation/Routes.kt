@@ -17,10 +17,6 @@ object Routes {
     const val RESULT = "result/{$RESULT_ARG}"
     fun result(jobId: String) = "result/$jobId"
 
-    const val VIDEO_OPTIONS_ARG = "uri"
-    const val VIDEO_OPTIONS = "videoOptions/{$VIDEO_OPTIONS_ARG}"
-    fun videoOptions(encodedUri: String) = "videoOptions/$encodedUri"
-
     /** Bottom bar destinations (order matters). */
     val bottomBar = listOf(HOME, LIBRARY, SETTINGS)
 }

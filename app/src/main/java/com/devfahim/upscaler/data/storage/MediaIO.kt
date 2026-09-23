@@ -4,18 +4,15 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
-import android.media.MediaMetadataRetriever
 import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
-import com.devfahim.upscaler.domain.repository.VideoInfo
-import com.devfahim.upscaler.domain.repository.VideoMetadataReader
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.max
 
 /**
- * Decodes photos (EXIF-rotation applied) and reads video metadata.
+ * Decodes photos (EXIF-rotation applied).
  *
  * Decode strategy: copy the content stream to a private temp file, decode
  * from path (uniform across API 26+), apply EXIF rotation, delete the temp.
@@ -25,7 +22,7 @@ import kotlin.math.max
 @Singleton
 class MediaIO @Inject constructor(
     private val context: Context,
-) : VideoMetadataReader {
+) {
 
     fun decodeBitmap(uri: Uri, maxDimension: Int = MAX_INPUT_DIMENSION): Bitmap? {
         val temp = File(context.cacheDir, "decode_${System.currentTimeMillis()}")
@@ -91,52 +88,6 @@ class MediaIO @Inject constructor(
         small.compress(Bitmap.CompressFormat.JPEG, 85, target.outputStream())
     } catch (t: Throwable) {
         false
-    }
-
-    fun videoThumbnail(uri: Uri, target: File): Boolean {
-        val r = MediaMetadataRetriever()
-        return try {
-            r.setDataSource(context, uri)
-            val frame = r.frameAtTime ?: return false
-            writeThumbnail(frame, target)
-        } catch (t: Throwable) {
-            false
-        } finally {
-            runCatching { r.release() }
-        }
-    }
-
-    override fun read(uri: String): VideoInfo? {
-        val r = MediaMetadataRetriever()
-        return try {
-            r.setDataSource(context, Uri.parse(uri))
-            val w = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)?.toIntOrNull() ?: 0
-            val h = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)?.toIntOrNull() ?: 0
-            if (w <= 0 || h <= 0) return null
-            // METADATA_KEY_ROTATION (24) is hidden in the public SDK, but
-            // extractMetadata() only accepts an Int keyCode, so the raw
-            // integer value (not a string) has to be passed here.
-            val rotation = r.extractMetadata(24)?.toIntOrNull() ?: 0
-            val fps = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CAPTURE_FRAMERATE)?.toFloatOrNull()
-                ?: 30f
-            val duration = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull() ?: 0L
-            val hasAudio = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO) == "yes"
-            val mime = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE) ?: "video/avc"
-            val (dispW, dispH) = if (rotation == 90 || rotation == 270) h to w else w to h
-            VideoInfo(
-                width = dispW,
-                height = dispH,
-                rotationDegrees = rotation,
-                fps = fps,
-                durationMs = duration,
-                hasAudio = hasAudio,
-                videoMime = mime,
-            )
-        } catch (t: Throwable) {
-            null
-        } finally {
-            runCatching { r.release() }
-        }
     }
 
     companion object {

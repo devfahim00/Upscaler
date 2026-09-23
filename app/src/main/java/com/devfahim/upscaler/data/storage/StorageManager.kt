@@ -5,7 +5,6 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
-import com.devfahim.upscaler.domain.model.MediaKind
 import com.devfahim.upscaler.domain.model.OutputFormat
 import java.io.File
 import javax.inject.Inject
@@ -29,8 +28,6 @@ class StorageManager @Inject constructor(
     fun resultFile(jobId: String, format: OutputFormat): File =
         File(resultsDir(), "$jobId.${format.fileExtension}")
 
-    fun videoResultFile(jobId: String): File = File(resultsDir(), "$jobId.mp4")
-
     fun thumbFile(jobId: String): File = File(thumbsDir(), "$jobId.jpg")
 
     /** Recursively computed size of all app-private caches (display + clear). */
@@ -45,24 +42,12 @@ class StorageManager @Inject constructor(
     /** Copies a finished result into MediaStore (Gallery). */
     fun saveToGallery(
         file: File,
-        kind: MediaKind,
         format: OutputFormat,
         displayName: String,
     ): Uri {
-        val (collection, relativePath, mime) = when (kind) {
-            MediaKind.PHOTO ->
-                Triple(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    "${MediaStore.Images.Media.RELATIVE_PATH}/Upscaler",
-                    format.mimeType,
-                )
-            MediaKind.VIDEO ->
-                Triple(
-                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                    "${MediaStore.Video.Media.RELATIVE_PATH}/Upscaler",
-                    "video/mp4",
-                )
-        }
+        val collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        val relativePath = "${MediaStore.Images.Media.RELATIVE_PATH}/Upscaler"
+        val mime = format.mimeType
 
         val values = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, displayName)

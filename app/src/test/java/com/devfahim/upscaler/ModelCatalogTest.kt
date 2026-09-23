@@ -3,7 +3,9 @@ package com.devfahim.upscaler
 import com.devfahim.upscaler.domain.model.ModelType
 import com.devfahim.upscaler.domain.model.ScaleOption
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -17,28 +19,60 @@ class ModelCatalogTest {
     }
 
     @Test
-    fun `video models are flagged and separated`() {
-        assertEquals(2, ModelType.videoModels.size)
-        assertEquals(4, ModelType.photoModels.size)
-        ModelType.videoModels.forEach { assertTrue(it.isVideoOptimized) }
-        ModelType.photoModels.forEach { assertTrue(!it.isVideoOptimized) }
+    fun `photo catalog contains exactly the four photo models`() {
+        assertEquals(
+            listOf(
+                ModelType.GENERAL_PHOTO_X4,
+                ModelType.HQ_PHOTO_X4,
+                ModelType.GENERAL_PHOTO_X2,
+                ModelType.ANIME_ILLUSTRATION_X4,
+            ),
+            ModelType.photoModels,
+        )
+    }
+
+    @Test
+    fun `high quality model uses smaller tiles than compact models`() {
+        // RRDBNet keeps many more feature maps alive - must use smaller tiles.
+        assertTrue(ModelType.HQ_PHOTO_X4.cpuTileSize < ModelType.GENERAL_PHOTO_X4.cpuTileSize)
+        assertTrue(ModelType.HQ_PHOTO_X4.gpuTileSize < ModelType.GENERAL_PHOTO_X4.gpuTileSize)
+        assertEquals(ModelType.HQ_CPU_TILE_SIZE, ModelType.HQ_PHOTO_X4.cpuTileSize)
+        assertEquals(ModelType.HQ_GPU_TILE_SIZE, ModelType.HQ_PHOTO_X4.gpuTileSize)
+    }
+
+    @Test
+    fun `tile size selection follows the backend`() {
+        ModelType.entries.forEach { m ->
+            assertEquals(m.gpuTileSize, m.tileSizeFor(backendUsesGpu = true))
+            assertEquals(m.cpuTileSize, m.tileSizeFor(backendUsesGpu = false))
+        }
+    }
+
+    @Test
+    fun `only the general photo x4 model supports wdn interpolation`() {
+        ModelType.entries.forEach { m ->
+            assertEquals(
+                "${m.name} wdn support",
+                m == ModelType.GENERAL_PHOTO_X4,
+                m.supportsWdnInterpolation,
+            )
+        }
+    }
+
+    @Test
+    fun `wdn companion asset dir is distinct from the base model`() {
+        assertTrue(ModelType.WDN_ASSET_DIR.isNotBlank())
+        assertFalse(ModelType.entries.any { it.assetDir == ModelType.WDN_ASSET_DIR })
+        assertFalse(ModelType.photoModels.any { it.assetDir == ModelType.WDN_ASSET_DIR })
     }
 
     @Test
     fun `stand-in models are explicitly flagged`() {
         assertNotNull(ModelType.GENERAL_PHOTO_X2.standInFor)
-        assertNotNull(ModelType.DENOISE_X4.standInFor)
-        // The two purpose-trained entries are NOT stand-ins.
-        assertEquals(null, ModelType.GENERAL_PHOTO_X4.standInFor)
-        assertEquals(null, ModelType.VIDEO_X2.standInFor)
-        assertEquals(null, ModelType.VIDEO_X4.standInFor)
-        assertEquals(null, ModelType.ANIME_ILLUSTRATION_X4.standInFor)
-    }
-
-    @Test
-    fun `a 2x and a 4x model exist for video`() {
-        val scales = ModelType.videoModels.map { it.nativeScale }.toSet()
-        assertEquals(setOf(2, 4), scales)
+        // The purpose-trained entries are NOT stand-ins.
+        assertNull(ModelType.GENERAL_PHOTO_X4.standInFor)
+        assertNull(ModelType.HQ_PHOTO_X4.standInFor)
+        assertNull(ModelType.ANIME_ILLUSTRATION_X4.standInFor)
     }
 
     @Test

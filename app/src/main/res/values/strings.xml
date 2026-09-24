@@ -51,6 +51,12 @@
     <string name="model_general_photo_x2_desc">Faster 2x pass for previews and low-end devices.</string>
     <string name="model_anime_x4_name">Anime / Illustration x4</string>
     <string name="model_anime_x4_desc">Sharper lines and flat colors. Great for drawings and logos.</string>
+    <string name="model_ultrasharp_x4_name">UltraSharp x4</string>
+    <string name="model_ultrasharp_x4_desc">Kim2091 ESRGAN-family model (RRDBNet). Rebuilds heavy fine texture on compressed photos - sharp and detailed.</string>
+    <string name="model_purephoto_x4_name">PurePhoto x4</string>
+    <string name="model_purephoto_x4_desc">RealPLSKR restoration model by asterixcool. Removes noise and compression, keeps faces, hair and fur natural.</string>
+    <string name="model_clearreality_x4_name">ClearReality x4 (lightweight)</string>
+    <string name="model_clearreality_x4_desc">Kim2091 SPAN model with full FP32 weights. Soft, natural look with few artifacts - and fast.</string>
     <string name="model_standin_note">(closest available compact weight - swappable)</string>
     <string name="model_hdrnet_name">HDRNet (HDR pass)</string>
     <string name="model_hdrnet_desc">Zero-DCE++ enhancement curves, run as the optional HDR pass.</string>

@@ -72,7 +72,9 @@ class ModelAssetManager @Inject constructor(
          * [WdnInterpolator] to key its interpolated-weight cache.
          *
          * v3 adds the hdrnet (Zero-DCE++) enhancement model.
+         * v4 adds 4x-ultrasharp, 4x-purephoto-realplksr and
+         * 4x-clearrealityv1.
          */
-        const val VERSION = 3
+        const val VERSION = 4
     }
 }

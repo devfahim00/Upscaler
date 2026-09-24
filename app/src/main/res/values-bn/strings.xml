@@ -51,6 +51,12 @@
     <string name="model_general_photo_x2_desc">প্রিভিউ ও কম-শক্তির ডিভাইসের জন্য দ্রুততর 2x পাস।</string>
     <string name="model_anime_x4_name">অ্যানিমে / ইলাস্ট্রেশন x4</string>
     <string name="model_anime_x4_desc">ধারালো রেখা ও ফ্ল্যাট রঙ। ড্রয়িং ও লোগোর জন্য দুর্দান্ত।</string>
+    <string name="model_ultrasharp_x4_name">UltraSharp x4</string>
+    <string name="model_ultrasharp_x4_desc">Kim2091 এর ESRGAN পরিবারের মডেল (RRDBNet)। কমপ্রেসড ছবিতে সূক্ষ্ম টেক্সচার ফিরিয়ে আনে - ধারালো ও ডিটেইলপূর্ণ।</string>
+    <string name="model_purephoto_x4_name">PurePhoto x4</string>
+    <string name="model_purephoto_x4_desc">asterixcool এর RealPLSKR রেস্টোরেশন মডেল। নয়েজ ও কমপ্রেশন দূর করে মুখ, চুল ও লোমের ডিটেইল প্রাকৃতিক রাখে।</string>
+    <string name="model_clearreality_x4_name">ClearReality x4 (হালকা)</string>
+    <string name="model_clearreality_x4_desc">Kim2091 এর SPAN মডেল, সম্পূর্ণ FP32 ওয়েট সহ। নরম ও প্রাকৃতিক ফলাফল, আর্টিফ্যাক্ট কম - সাথে দ্রুত।</string>
     <string name="model_standin_note">(সবচেয়ে কাছের উপলব্ধ কমপ্যাক্ট ওয়েট - বদলানো যায়)</string>
     <string name="model_hdrnet_name">HDRNet (HDR পাস)</string>
     <string name="model_hdrnet_desc">Zero-DCE++ এনহ্যান্সমেন্ট কার্ভ, ঐচ্ছিক HDR পাস হিসেবে চালানো হয়।</string>

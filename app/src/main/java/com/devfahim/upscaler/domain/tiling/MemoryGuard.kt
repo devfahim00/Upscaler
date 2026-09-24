@@ -41,6 +41,18 @@ object MemoryGuard {
     const val HQ_GPU_TILE_SIZE: Int = 96
 
     /**
+     * Tile body edge for the RealPLSKR photo model (4x-purephoto-realplksr)
+     * on the CPU backend. Its blocks are sequential (no dense growth), but
+     * the 17x17 large kernels plus the attention branch keep a handful of
+     * 64-channel maps alive per tile - mid-size tiles, between the compact
+     * and RRDBNet budgets.
+     */
+    const val PLKSR_CPU_TILE_SIZE: Int = 96
+
+    /** Tile body edge for the RealPLSKR model on the Vulkan GPU backend. */
+    const val PLKSR_GPU_TILE_SIZE: Int = 128
+
+    /**
      * Chooses the effective scale so the output stays within budget.
      *
      * @return the effective scale (never larger than [requestedScale]) and

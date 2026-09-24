@@ -30,13 +30,16 @@ class ModelCatalogTest {
     }
 
     @Test
-    fun `photo catalog contains exactly the four photo models`() {
+    fun `photo catalog contains exactly the seven photo models`() {
         assertEquals(
             listOf(
                 ModelType.GENERAL_PHOTO_X4,
                 ModelType.HQ_PHOTO_X4,
                 ModelType.GENERAL_PHOTO_X2,
                 ModelType.ANIME_ILLUSTRATION_X4,
+                ModelType.ULTRASHARP_X4,
+                ModelType.PUREPHOTO_X4,
+                ModelType.CLEARREALITY_X4,
             ),
             ModelType.photoModels,
         )
@@ -49,6 +52,35 @@ class ModelCatalogTest {
         assertTrue(ModelType.HQ_PHOTO_X4.gpuTileSize < ModelType.GENERAL_PHOTO_X4.gpuTileSize)
         assertEquals(MemoryGuard.HQ_CPU_TILE_SIZE, ModelType.HQ_PHOTO_X4.cpuTileSize)
         assertEquals(MemoryGuard.HQ_GPU_TILE_SIZE, ModelType.HQ_PHOTO_X4.gpuTileSize)
+    }
+
+    @Test
+    fun `ultrasharp shares the rrdb hq tile sizes`() {
+        // Same architecture class as RealESRGAN_x4plus -> same tile budget.
+        assertEquals(ModelType.HQ_PHOTO_X4.cpuTileSize, ModelType.ULTRASHARP_X4.cpuTileSize)
+        assertEquals(ModelType.HQ_PHOTO_X4.gpuTileSize, ModelType.ULTRASHARP_X4.gpuTileSize)
+    }
+
+    @Test
+    fun `plksr purephoto model uses mid tiles between compact and hq`() {
+        assertTrue(ModelType.PUREPHOTO_X4.cpuTileSize < ModelType.GENERAL_PHOTO_X4.cpuTileSize)
+        assertTrue(ModelType.PUREPHOTO_X4.gpuTileSize < ModelType.GENERAL_PHOTO_X4.gpuTileSize)
+        assertTrue(ModelType.PUREPHOTO_X4.cpuTileSize > ModelType.HQ_PHOTO_X4.cpuTileSize)
+        assertTrue(ModelType.PUREPHOTO_X4.gpuTileSize > ModelType.HQ_PHOTO_X4.gpuTileSize)
+        assertEquals(MemoryGuard.PLKSR_CPU_TILE_SIZE, ModelType.PUREPHOTO_X4.cpuTileSize)
+        assertEquals(MemoryGuard.PLKSR_GPU_TILE_SIZE, ModelType.PUREPHOTO_X4.gpuTileSize)
+    }
+
+    @Test
+    fun `lightweight clearreality model uses the default compact tiles`() {
+        assertEquals(MemoryGuard.CPU_TILE_SIZE, ModelType.CLEARREALITY_X4.cpuTileSize)
+        assertEquals(MemoryGuard.GPU_TILE_SIZE, ModelType.CLEARREALITY_X4.gpuTileSize)
+    }
+
+    @Test
+    fun `model asset dirs are unique across the catalog`() {
+        val dirs = ModelType.entries.map { it.assetDir } + ModelType.WDN_ASSET_DIR
+        assertEquals("asset dirs must be unique", dirs.size, dirs.toSet().size)
     }
 
     @Test
@@ -84,6 +116,9 @@ class ModelCatalogTest {
         assertNull(ModelType.GENERAL_PHOTO_X4.standInFor)
         assertNull(ModelType.HQ_PHOTO_X4.standInFor)
         assertNull(ModelType.ANIME_ILLUSTRATION_X4.standInFor)
+        assertNull(ModelType.ULTRASHARP_X4.standInFor)
+        assertNull(ModelType.PUREPHOTO_X4.standInFor)
+        assertNull(ModelType.CLEARREALITY_X4.standInFor)
     }
 
     @Test

@@ -95,6 +95,41 @@ POSSIBILITY OF SUCH DAMAGE.
 * Attribution: Guo, Li, Ling - "Zero-Reference Deep Curve Estimation for
   Low-Light Image Enhancement" (CVPR 2020) and its journal extension.
 
+## 4x-UltraSharp (model weights)
+
+* Project / author: Kim2091 — https://huggingface.co/Kim2091/UltraSharp
+  (OpenModelDB entry: https://openmodeldb.info/models/4x-UltraSharp)
+* Weights: official ncnn fp16 export (`NCNN/4x-UltraSharp-fp16.{param,bin}`),
+  bundled as `4x-ultrasharp` (RRDBNet / ESRGAN architecture)
+* License: CC BY-NC-SA 4.0 —
+  https://creativecommons.org/licenses/by-nc-sa/4.0/
+* Use: super-resolution (heavy texture / JPEG-compression restoration).
+
+## 4x-PurePhoto-RealPLSKR (model weights)
+
+* Project / author: asterixcool — OpenModelDB entry:
+  https://openmodeldb.info/models/4x-PurePhoto-RealPLSKR
+  (PyTorch weights distributed via the starinspace/StarinspaceUpscale
+  GitHub release; SHA-256 verified against the OpenModelDB record)
+* Weights: converted to ncnn `.param`/`.bin` (fp16 storage) for this app
+  and numerically validated against the PyTorch reference, bundled as
+  `4x-purephoto-realplksr` (RealPLSKR architecture)
+* License: CC BY-SA 4.0 —
+  https://creativecommons.org/licenses/by-sa/4.0/
+* Use: super-resolution / photo restoration (denoise, de-compression).
+
+## 4x-ClearRealityV1 (model weights)
+
+* Project / author: Kim2091 — https://huggingface.co/Kim2091/ClearRealityV1
+* Weights: converted to ncnn `.param`/`.bin` from the official PyTorch
+  file (the fused `eval_conv` inference weights, full FP32 precision as
+  published by the author), bundled as `4x-clearrealityv1` (SPAN
+  architecture, lightweight configuration)
+* License: Apache-2.0 as declared by the author on the model repository
+  (the OpenModelDB entry lists CC BY-NC-SA 4.0; redistributors should
+  verify with the author if in doubt)
+* Use: super-resolution (soft, natural look for realistic imagery).
+
 ## AndroidX / Jetpack libraries (Apache-2.0)
 
 Compose, Room, DataStore, WorkManager, Navigation, Hilt (Apache-2.0),

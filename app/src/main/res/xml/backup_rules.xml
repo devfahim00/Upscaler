@@ -3,6 +3,7 @@
     <!-- Room DB + DataStore are backed up; large result files are not. -->
     <include domain="database" path="." />
     <include domain="sharedpref" path="." />
+    <include domain="file" path="." />
     <exclude domain="file" path="results/" />
     <exclude domain="file" path="thumbs/" />
     <exclude domain="file" path="models/" />

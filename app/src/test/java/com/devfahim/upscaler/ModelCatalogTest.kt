@@ -103,6 +103,20 @@ class ModelCatalogTest {
     }
 
     @Test
+    fun `only purephoto requires fp32 inference`() {
+        // 4x-PurePhoto (RealPLSKR) channel-attention logits exceed the fp16
+        // range; every other bundled model is fp16-safe (verified against
+        // the ncnn Vulkan fp16 path). See ModelType.fp32Only.
+        ModelType.entries.forEach { m ->
+            assertEquals(
+                "${m.name} fp32Only",
+                m == ModelType.PUREPHOTO_X4,
+                m.fp32Only,
+            )
+        }
+    }
+
+    @Test
     fun `wdn companion asset dir is distinct from the base model`() {
         assertTrue(ModelType.WDN_ASSET_DIR.isNotBlank())
         assertFalse(ModelType.entries.any { it.assetDir == ModelType.WDN_ASSET_DIR })

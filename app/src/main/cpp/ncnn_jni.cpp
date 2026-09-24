@@ -5,10 +5,10 @@
 //
 //   nativeGetNcnnVersion()                     -> String
 //   nativeGetGpuCount()                        -> Int      (Vulkan devices)
-//   nativeCreateEngine(param, bin, gpu, threads) -> Long    (engine handle)
+//   nativeCreateEngine(param, bin, gpu, threads, forceFp32) -> Long (engine handle)
 //   nativeDestroyEngine(handle)                 -> Unit
 //   nativeUpscaleTile(handle, pixels, w, h, s)  -> IntArray (ARGB, w*s x h*s)
-//   nativeBenchmark(param, bin, gpu, threads, iters) -> Double (avg ms)
+//   nativeBenchmark(param, bin, gpu, threads, iters, forceFp32) -> Double (avg ms)
 //
 // Pixel format: ARGB_8888 packed in an IntArray (Android Bitmap.getPixels
 // layout: 0xAARRGGBB). Channel order fed to the network is R, G, B with
@@ -99,6 +99,19 @@ void mat_to_argb(const ncnn::Mat& m, jint* out) {
     }
 }
 
+// Disables all fp16 compute paths on the net. Used for models whose
+// activations exceed the fp16 range (see ModelType::fp32Only in Kotlin):
+// with fp16 blob storage/packing the fused-sigmoid convolutions of
+// 4x-PurePhoto (RealPLSKR) overflow to inf/NaN and the whole output turns
+// black. Full fp32 is bit-safe on every backend.
+static void apply_fp32_mode(ncnn::Option& opt, jboolean forceFp32) {
+    if (forceFp32) {
+        opt.use_fp16_packed = false;
+        opt.use_fp16_storage = false;
+        opt.use_fp16_arithmetic = false;
+    }
+}
+
 inline std::string jstring_to_std(JNIEnv* env, jstring s) {
     if (s == nullptr) return std::string();
     const char* c = env->GetStringUTFChars(s, nullptr);
@@ -133,7 +146,7 @@ Java_com_devfahim_upscaler_data_engine_EngineBridge_nativeGetGpuCount(
 extern "C" JNIEXPORT jlong JNICALL
 Java_com_devfahim_upscaler_data_engine_EngineBridge_nativeCreateEngine(
         JNIEnv* env, jclass /*clazz*/, jstring paramPath, jstring binPath,
-        jboolean useGpu, jint numThreads) {
+        jboolean useGpu, jint numThreads, jboolean forceFp32) {
     const std::string param = jstring_to_std(env, paramPath);
     const std::string bin = jstring_to_std(env, binPath);
 
@@ -155,6 +168,8 @@ Java_com_devfahim_upscaler_data_engine_EngineBridge_nativeCreateEngine(
     // uses CPU threads for pre/post processing stages.
     engine->net.opt.num_threads =
             numThreads > 0 ? numThreads : ncnn::get_cpu_count();
+
+    apply_fp32_mode(engine->net.opt, forceFp32);
 
     if (engine->net.load_param(param.c_str()) != 0) {
         delete engine;
@@ -240,7 +255,7 @@ Java_com_devfahim_upscaler_data_engine_EngineBridge_nativeUpscaleTile(
 extern "C" JNIEXPORT jdouble JNICALL
 Java_com_devfahim_upscaler_data_engine_EngineBridge_nativeBenchmark(
         JNIEnv* env, jclass /*clazz*/, jstring paramPath, jstring binPath,
-        jboolean useGpu, jint numThreads, jint iterations) {
+        jboolean useGpu, jint numThreads, jint iterations, jboolean forceFp32) {
     const std::string param = jstring_to_std(env, paramPath);
     const std::string bin = jstring_to_std(env, binPath);
 
@@ -254,6 +269,8 @@ Java_com_devfahim_upscaler_data_engine_EngineBridge_nativeBenchmark(
         net.opt.use_vulkan_compute = false;
     }
     net.opt.num_threads = numThreads > 0 ? numThreads : ncnn::get_cpu_count();
+
+    apply_fp32_mode(net.opt, forceFp32);
 
     if (net.load_param(param.c_str()) != 0) return -1.0;
     if (net.load_model(bin.c_str()) != 0) return -1.0;

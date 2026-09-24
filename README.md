@@ -205,7 +205,7 @@ To add or swap a model:
 | Photo x2 (fast) | `realesr-animevideov3-x2` | animevideov3 x2 | **stand-in** (no public general-x2 compact weight); flagged in UI |
 | Anime / Illustration x4 | `realesr-animevideov3-x4` | animevideov3 x4 | — |
 | UltraSharp x4 | `4x-ultrasharp` | Kim2091 4x-UltraSharp (RRDBNet), official ncnn fp16 export | heavy texture / JPEG restoration |
-| PurePhoto x4 | `4x-purephoto-realplksr` | asterixcool 4x-PurePhoto (RealPLSKR), converted from the official PyTorch weights (fp16 storage) | denoise / photo restoration |
+| PurePhoto x4 | `4x-purephoto-realplksr` | asterixcool 4x-PurePhoto (RealPLSKR), converted from the official PyTorch weights (fp16 storage) | denoise / photo restoration; runs inference in fp32 (its channel-attention logits exceed the fp16 range, which would turn the output black) |
 | ClearReality x4 (lightweight) | `4x-clearrealityv1` | Kim2091 4x-ClearRealityV1 (SPAN), converted from the official PyTorch weights (full FP32) | soft natural look, very fast |
 | (WDN companion) | `realesr-general-wdn-x4v3` | official compact WDN twin | not user-selectable; reached via the denoise slider |
 | (HDRNet pass) | `hdrnet` | official Zero-DCE++ Epoch-99 curve network | not user-selectable; reached via the per-model HDR toggle |

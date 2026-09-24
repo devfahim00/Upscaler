@@ -16,8 +16,21 @@ object EngineBridge {
     /** Number of usable Vulkan devices; 0 on devices without usable Vulkan. */
     external fun nativeGetGpuCount(): Int
 
-    /** Loads a model; returns a native engine handle or 0 on failure. */
-    external fun nativeCreateEngine(paramPath: String, binPath: String, useGpu: Boolean, numThreads: Int): Long
+    /**
+     * Loads a model; returns a native engine handle or 0 on failure.
+     *
+     * @param forceFp32 disables ncnn's fp16 blob storage/packing/arithmetic
+     *        for this engine. Required for models whose activations exceed
+     *        the fp16 range (e.g. 4x-PurePhoto's channel-attention logits);
+     *        with fp16 buffers those models produce NaN, i.e. a black image.
+     */
+    external fun nativeCreateEngine(
+        paramPath: String,
+        binPath: String,
+        useGpu: Boolean,
+        numThreads: Int,
+        forceFp32: Boolean,
+    ): Long
 
     external fun nativeDestroyEngine(handle: Long)
 
@@ -28,6 +41,17 @@ object EngineBridge {
      */
     external fun nativeUpscaleTile(handle: Long, pixels: IntArray, width: Int, height: Int, nativeScale: Int): IntArray?
 
-    /** Average ms per 64x64 inference; negative on failure. */
-    external fun nativeBenchmark(paramPath: String, binPath: String, useGpu: Boolean, numThreads: Int, iterations: Int): Double
+    /**
+     * Average ms per 64x64 inference; negative on failure.
+     * [forceFp32] mirrors [nativeCreateEngine]'s fp32 override so backend
+     * benchmarks measure the precision the session will actually use.
+     */
+    external fun nativeBenchmark(
+        paramPath: String,
+        binPath: String,
+        useGpu: Boolean,
+        numThreads: Int,
+        iterations: Int,
+        forceFp32: Boolean,
+    ): Double
 }

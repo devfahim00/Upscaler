@@ -32,6 +32,7 @@ class InferenceSmokeTest {
             dir.resolve("model.bin").absolutePath,
             useGpu = false,
             numThreads = 2,
+            forceFp32 = false,
         )
         assertTrue("engine handle was 0", handle != 0L)
 

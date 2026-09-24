@@ -64,6 +64,7 @@ class NcnnInferenceEngine @Inject constructor(
             binPath = binPath,
             useGpu = backend == BackendMode.GPU,
             numThreads = threads,
+            forceFp32 = model.fp32Only,
         )
     }
 
@@ -87,6 +88,7 @@ class NcnnInferenceEngine @Inject constructor(
             backend == BackendMode.GPU,
             threads,
             iterations,
+            model.fp32Only,
         )
     }
 

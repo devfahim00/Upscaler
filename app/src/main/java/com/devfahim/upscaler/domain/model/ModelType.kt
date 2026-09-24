@@ -22,6 +22,8 @@ import com.devfahim.upscaler.domain.tiling.MemoryGuard
  *  * 4x-purephoto-realplksr - asterixcool's RealPLSKR photo-restoration
  *    network (converted from the official PyTorch weights, fp16 storage;
  *    the channel-repeat tail is expressed as a fixed 1x1 identity conv).
+ *    Its channel-attention logits exceed the fp16 range, so it runs in
+ *    full fp32 on every backend ([ModelType.fp32Only]).
  *  * 4x-clearrealityv1 - Kim2091's lightweight SPAN model shipped as full
  *    FP32 weights (the ~0.43M-parameter fused-inference net; converted from
  *    the official PyTorch weights).
@@ -51,6 +53,15 @@ enum class ModelType(
     val cpuTileSize: Int = MemoryGuard.CPU_TILE_SIZE,
     /** Tile body edge (input px) when running this model on the GPU backend. */
     val gpuTileSize: Int = MemoryGuard.GPU_TILE_SIZE,
+    /**
+     * True when this model must run with ncnn's fp16 paths (blob storage /
+     * packing / arithmetic) disabled on every backend. Set for models whose
+     * internal activations exceed the fp16 range (~±65504): 4x-PurePhoto's
+     * channel-attention branch reaches ±31000 by block 5 of 28 and keeps
+     * growing, so fp16 conv accumulation overflows to inf/NaN and the
+     * enhanced photo comes out fully black. fp32 keeps the math exact.
+     */
+    val fp32Only: Boolean = false,
     val standInFor: String? = null,
 ) {
     /**
@@ -126,6 +137,10 @@ enum class ModelType(
      * faces, hair and fur. Mid-weight network (7.4M params, fp16 storage),
      * so it runs with mid-size tiles: lighter than RRDBNet per tile but
      * heavier than the compact SRVGG models.
+     *
+     * fp32Only: the channel-attention branch emits pre-sigmoid logits well
+     * beyond the fp16 range, so inference must run in full fp32 (verified
+     * bit-exact against the CPU reference on the Vulkan path).
      */
     PUREPHOTO_X4(
         assetDir = "4x-purephoto-realplksr",
@@ -134,6 +149,7 @@ enum class ModelType(
         descriptionRes = R.string.model_purephoto_x4_desc,
         cpuTileSize = MemoryGuard.PLKSR_CPU_TILE_SIZE,
         gpuTileSize = MemoryGuard.PLKSR_GPU_TILE_SIZE,
+        fp32Only = true,
     ),
 
     /**

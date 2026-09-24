@@ -181,7 +181,7 @@ fun HomeScreen(
                 }
             }
 
-            // Offline trust banner - no INTERNET permission is declared.
+            // On-device trust banner - upscaling never leaves the phone.
             Box(
                 Modifier
                     .fillMaxWidth()

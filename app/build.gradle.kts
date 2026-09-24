@@ -34,6 +34,22 @@ android {
         }
     }
 
+    signingConfigs {
+        // Populated in CI from the KEYSTORE_FILE / KEYSTORE_PASSWORD / KEY_ALIAS /
+        // KEY_PASSWORD env vars (see .github/workflows/android-ci.yml). Left unset for
+        // local dev builds — assembleDebug is unaffected; assembleRelease locally
+        // needs the same env vars exported by hand.
+        create("release") {
+            val keystorePath = System.getenv("KEYSTORE_FILE")
+            if (!keystorePath.isNullOrBlank()) {
+                storeFile = file(keystorePath)
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         debug {
             isMinifyEnabled = false
@@ -41,6 +57,7 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

@@ -14,8 +14,13 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
@@ -35,6 +40,8 @@ import com.devfahim.upscaler.domain.repository.AppSettings
 import com.devfahim.upscaler.domain.repository.JobsRepository
 import com.devfahim.upscaler.domain.repository.SettingsRepository
 import com.devfahim.upscaler.ui.navigation.Routes
+import com.devfahim.upscaler.ui.components.UpdateDialog
+import com.devfahim.upscaler.util.AppUpdater
 import com.devfahim.upscaler.ui.screens.about.AboutScreen
 import com.devfahim.upscaler.ui.screens.home.HomeScreen
 import com.devfahim.upscaler.ui.screens.library.LibraryScreen
@@ -49,6 +56,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /** Root state: settings + first-launch routing. */
@@ -72,6 +81,21 @@ fun UpscalerRoot(
 ) {
     val settings by rootViewModel.settings.collectAsStateWithLifecycle()
     val current = settings ?: return // brief blank while DataStore loads
+
+    // ---- Automatic app update check (silent, once per launch) ----
+    // Compares the installed version against the latest GitHub Release and
+    // pops a dialog when a newer build is published. Manual checks live on
+    // the About screen. This is the app's only network use - upscaling
+    // itself is 100% on-device.
+    val context = LocalContext.current
+    var updateRelease by remember { mutableStateOf<AppUpdater.Release?>(null) }
+    var installedVersion by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        installedVersion = AppUpdater.currentVersion(context)
+        val result = withContext(Dispatchers.IO) { AppUpdater.check(context) }
+        updateRelease = (result as? AppUpdater.Result.Available)?.release
+    }
 
     UpscalerTheme(themeMode = current.themeMode) {
         val navController = rememberNavController()
@@ -124,6 +148,16 @@ fun UpscalerRoot(
                     startOnboarding = !current.onboardingDone,
                 )
             }
+        }
+
+        // Inside the theme so the dialog follows the app's light/dark scheme.
+        updateRelease?.let { release ->
+            UpdateDialog(
+                release = release,
+                currentVersion = installedVersion,
+                onDownload = { AppUpdater.openLink(context, release.apkUrl) },
+                onDismiss = { updateRelease = null },
+            )
         }
     }
 }

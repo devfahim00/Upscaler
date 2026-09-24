@@ -25,7 +25,7 @@
     <string name="onboarding_1_title">Sharper photos</string>
     <string name="onboarding_1_body">Upscale images up to 4x right on your phone - from a fast compact network to the full RealESRGAN_x4plus high-quality model, there is a speed/quality option for every device.</string>
     <string name="onboarding_2_title">100% offline</string>
-    <string name="onboarding_2_body">Everything runs on your device. Your photos never leave your phone - the app doesn\'t even request internet access.</string>
+    <string name="onboarding_2_body">Everything runs on your device. Your photos never leave your phone - the app\'s only network use is its GitHub update check.</string>
     <string name="onboarding_3_title">Pick, enhance, compare</string>
     <string name="onboarding_3_body">Choose a model, dial in denoise strength for compressed photos, then compare the result with a draggable before/after slider. Your library keeps every result.</string>
 
@@ -33,7 +33,7 @@
     <string name="home_upscale_photo">Upscale Photo</string>
     <string name="home_upscale_photo_sub">Images up to 4x sharper</string>
     <string name="home_recent">Recent</string>
-    <string name="home_offline_banner">100% offline - your photos never leave this device.</string>
+    <string name="home_offline_banner">100% on-device - your photos never leave this phone.</string>
     <string name="kind_photo">Photo</string>
 
     <!-- Options -->
@@ -151,9 +151,26 @@
     <string name="notif_photo_processing_title">Upscaling photo</string>
     <string name="notif_processing_desc">You can close the app; processing continues.</string>
 
+    <!-- App update dialog -->
+    <string name="update_dialog_title">Update available</string>
+    <string name="update_dialog_body">A new version of Upscaler (%1$s) is available. You are running %2$s. The update downloads from GitHub Releases and installs over the current version - your library and settings are kept.</string>
+    <string name="update_dialog_download">Download %1$s</string>
+    <string name="update_dialog_later">Later</string>
+
     <!-- About -->
     <string name="about_version">Version %1$s</string>
-    <string name="about_offline">No internet permission - fully offline</string>
+    <string name="about_offline">On-device upscaling - your photos never leave the phone</string>
+    <string name="about_updates_title">App updates</string>
+    <string name="about_updates_desc">Upscaler checks GitHub Releases for newer versions automatically on launch, and you can also check manually here.</string>
+    <string name="about_check_updates">Check for updates</string>
+    <string name="about_checking">Checking…</string>
+    <string name="about_up_to_date">You are up to date (version %1$s)</string>
+    <string name="about_update_available">Version %1$s is available</string>
+    <string name="about_download_update">Download update %1$s</string>
+    <string name="about_check_failed">Could not check for updates: %1$s</string>
+    <string name="about_telegram_title">Telegram</string>
+    <string name="about_telegram_desc">Questions, feedback or bug reports - message the developer on Telegram (%1$s).</string>
+    <string name="about_open_telegram">Open Telegram</string>
     <string name="about_how_title">How it works</string>
     <string name="about_how_body">Super-resolution networks from Real-ESRGAN run locally through Tencent\'s ncnn inference engine, using the phone\'s GPU when possible. The compact models breeze through photos on any device, the optional High Quality model (full RealESRGAN_x4plus RRDBNet) recovers more real texture, and the denoise slider blends in a WDN-trained twin weight for noisy sources. Large images are processed in overlapping tiles so memory stays safe.</string>
     <string name="about_credits_title">Open-source credits</string>
@@ -161,5 +178,5 @@
     <string name="about_credits_realesrgan">Models: Real-ESRGAN by Xinntao et al. (BSD 3-Clause) - https://github.com/xinntao/Real-ESRGAN</string>
     <string name="about_credits_note">Some bundled models are the closest publicly available compact variants for a listed use-case and are clearly flagged in the model picker; they can be swapped for purpose-trained weights later.</string>
     <string name="about_privacy_title">Privacy</string>
-    <string name="about_privacy_body">The app declares no internet access at all. Nothing you process here is uploaded, logged or shared automatically. Deleting an item from the library also deletes its result file.</string>
+    <string name="about_privacy_body">Upscaling happens entirely on-device: your photos are never uploaded, logged or shared. The app\'s only network use is the GitHub update check and links you tap yourself. No analytics, no tracking. Deleting an item from the library also deletes its result file.</string>
 </resources>

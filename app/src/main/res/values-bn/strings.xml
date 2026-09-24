@@ -25,7 +25,7 @@
     <string name="onboarding_1_title">ঝকঝকে ছবি</string>
     <string name="onboarding_1_body">ছবি ৪x পর্যন্ত আপস্কেল করুন সরাসরি আপনার ফোনে - দ্রুত কমপ্যাক্ট নেটওয়ার্ক থেকে শুরু করে সম্পূর্ণ RealESRGAN_x4plus হাই-কোয়ালিটি মডেল পর্যন্ত, প্রতিটি ডিভাইসের জন্য গতি/গুণমানের বিকল্প আছে।</string>
     <string name="onboarding_2_title">১০০% অফলাইন</string>
-    <string name="onboarding_2_body">সবকিছু আপনার ডিভাইসেই চলে। আপনার ছবি কখনোই ফোন ছেড়ে যায় না - অ্যাপটি ইন্টারনেট অনুমতি চায়ই না।</string>
+    <string name="onboarding_2_body">সবকিছু আপনার ডিভাইসেই চলে। আপনার ছবি কখনোই ফোন ছেড়ে যায় না - অ্যাপের একমাত্র নেটওয়ার্ক ব্যবহার হলো GitHub আপডেট চেক।</string>
     <string name="onboarding_3_title">বেছে নিন, উন্নত করুন, তুলনা করুন</string>
     <string name="onboarding_3_body">মডেল বেছে নিন, কমপ্রেসড ছবির জন্য ডিনয়েজ শক্তি ঠিক করুন, তারপর ড্র্যাগ করা যায় এমন আগে/পরে স্লাইডার দিয়ে ফলাফল তুলনা করুন। আপনার লাইব্রেরি প্রতিটি ফলাফল সংরক্ষণ করে।</string>
 
@@ -33,7 +33,7 @@
     <string name="home_upscale_photo">ছবি আপস্কেল</string>
     <string name="home_upscale_photo_sub">ছবি ৪x পর্যন্ত ঝকঝকে</string>
     <string name="home_recent">সাম্প্রতিক</string>
-    <string name="home_offline_banner">১০০% অফলাইন - আপনার ছবি এই ডিভাইস ছেড়ে কখনোই যায় না।</string>
+    <string name="home_offline_banner">১০০% অন-ডিভাইস - আপনার ছবি এই ফোন ছেড়ে কখনোই যায় না।</string>
     <string name="kind_photo">ছবি</string>
 
     <!-- Options -->
@@ -151,9 +151,26 @@
     <string name="notif_photo_processing_title">ছবি আপস্কেল হচ্ছে</string>
     <string name="notif_processing_desc">অ্যাপ বন্ধ করলেও প্রসেসিং চলতে থাকে।</string>
 
+    <!-- App update dialog -->
+    <string name="update_dialog_title">আপডেট পাওয়া গেছে</string>
+    <string name="update_dialog_body">Upscaler-এর নতুন ভার্সন (%1$s) পাওয়া গেছে। আপনি চালাচ্ছেন %2$s। আপডেটটি GitHub Releases থেকে ডাউনলোড হয়ে বর্তমান ভার্সনের ওপরেই ইনস্টল হয় - আপনার লাইব্রেরি ও সেটিংস অটুট থাকে।</string>
+    <string name="update_dialog_download">ডাউনলোড %1$s</string>
+    <string name="update_dialog_later">পরে</string>
+
     <!-- About -->
     <string name="about_version">ভার্সন %1$s</string>
-    <string name="about_offline">কোনো ইন্টারনেট অনুমতি নেই - সম্পূর্ণ অফলাইন</string>
+    <string name="about_offline">অন-ডিভাইস আপস্কেলিং - আপনার ছবি ফোন ছেড়ে কোথাও যায় না</string>
+    <string name="about_updates_title">অ্যাপ আপডেট</string>
+    <string name="about_updates_desc">Upscaler চালু হলে GitHub Releases-এ নতুন ভার্সন আছে কি না স্বয়ংক্রিয়ভাবে দেখে নেয়, আর চাইলে এখান থেকেও ম্যানুয়ালি চেক করা যায়।</string>
+    <string name="about_check_updates">আপডেট চেক করুন</string>
+    <string name="about_checking">চেক করা হচ্ছে…</string>
+    <string name="about_up_to_date">আপনি আপ-টু-ডেট আছেন (ভার্সন %1$s)</string>
+    <string name="about_update_available">ভার্সন %1$s পাওয়া গেছে</string>
+    <string name="about_download_update">আপডেট %1$s ডাউনলোড করুন</string>
+    <string name="about_check_failed">আপডেট চেক করা যায়নি: %1$s</string>
+    <string name="about_telegram_title">টেলিগ্রাম</string>
+    <string name="about_telegram_desc">প্রশ্ন, মতামত বা বাগ রিপোর্ট - ডেভেলপারকে টেলিগ্রামে মেসেজ করুন (%1$s)।</string>
+    <string name="about_open_telegram">টেলিগ্রাম খুলুন</string>
     <string name="about_how_title">যেভাবে কাজ করে</string>
     <string name="about_how_body">Real-ESRGAN-এর সুপার-রেজোলিউশন নেটওয়ার্কগুলো Tencent-এর ncnn ইঞ্জিনের মাধ্যমে স্থানীয়ভাবে চলে, সম্ভব হলে ফোনের GPU ব্যবহার করে। কমপ্যাক্ট মডেলগুলো যেকোনো ডিভাইসে দ্রুত চলে, ঐচ্ছিক হাই-কোয়ালিটি মডেল (সম্পূর্ণ RealESRGAN_x4plus RRDBNet) বেশি আসল টেক্সচার ফিরিয়ে আনে, আর ডিনয়েজ স্লাইডার নয়েজি ছবির জন্য WDN-প্রশিক্ষিত ওয়েট মেশায়। বড় ছবি ওভারল্যাপিং টাইলে প্রসেস হয় যাতে মেমরি নিরাপদ থাকে।</string>
     <string name="about_credits_title">ওপেন-সোর্স কৃতজ্ঞতা</string>
@@ -161,5 +178,5 @@
     <string name="about_credits_realesrgan">মডেল: Xinntao ও অন্যান্যদের Real-ESRGAN (BSD 3-Clause) - https://github.com/xinntao/Real-ESRGAN</string>
     <string name="about_credits_note">কিছু বান্ডেল করা মডেল তালিকাভুক্ত ব্যবহারের জন্য সবচেয়ে কাছের উপলব্ধ কমপ্যাক্ট ভ্যারিয়েন্ট এবং মডেল পিকারে স্পষ্টভাবে চিহ্নিত; পরে এগুলো উদ্দেশ্যে-প্রশিক্ষিত ওয়েট দিয়ে বদলানো যাবে।</string>
     <string name="about_privacy_title">গোপনীয়তা</string>
-    <string name="about_privacy_body">অ্যাপটি আদৌ কোনো ইন্টারনেট অ্যাক্সেস চায় না। আপনি যা প্রসেস করেন তা স্বয়ংক্রিয়ভাবে আপলোড, লগ বা শেয়ার হয় না। লাইব্রেরি থেকে কোনো আইটেম মুছলে তার ফলাফল ফাইলও মুছে যায়।</string>
+    <string name="about_privacy_body">আপস্কেলিং সম্পূর্ণ অন-ডিভাইসে হয়: আপনার ছবি কখনোই আপলোড, লগ বা শেয়ার হয় না। অ্যাপের একমাত্র নেটওয়ার্ক ব্যবহার হলো GitHub আপডেট চেক আর আপনি নিজে ট্যাপ করা লিঙ্কগুলো। কোনো অ্যানালিটিক্স নেই, কোনো ট্র্যাকিং নেই। লাইব্রেরি থেকে কোনো আইটেম মুছলে তার ফলাফল ফাইলও মুছে যায়।</string>
 </resources>

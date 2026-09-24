@@ -3,10 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <!--
-        NOTE: there is deliberately NO android.permission.INTERNET.
         The core upscaling feature is 100% offline: photos never
-        leave the device. This is a visible trust signal (see About screen).
+        leave the device. The ONLY network use is the app update
+        check against GitHub Releases (auto on launch + manual in
+        About) and the user-triggered Telegram / release links.
+        No analytics, no tracking, no photo ever leaves the phone.
     -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <!-- Media access: granular permissions on Android 13+ -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
